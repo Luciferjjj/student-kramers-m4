@@ -38,7 +38,7 @@ $$
 The optimizer also uses
 
 $$
-\alpha=2\eta\,\operatorname{logistic}(\rho),
+\alpha=2\eta\,\mathrm{logistic}(\rho),
 $$
 
 so every M4 proposal satisfies global diffusion positivity and

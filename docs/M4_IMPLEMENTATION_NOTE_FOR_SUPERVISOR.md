@@ -235,7 +235,7 @@ $0<\alpha<2\eta$. The code parameterizes the second row of $L$ by
 
 $$
 \begin{aligned}
-\alpha&=2\eta\,\operatorname{logistic}(\rho),\\
+\alpha&=2\eta\,\mathrm{logistic}(\rho),\\
 l_{21}&=\sqrt{\alpha}\cos\phi,
 \qquad
 l_{22}=\sqrt{\alpha}\sin\phi.
@@ -299,8 +299,8 @@ $$
 The implementation writes its vectorization as
 
 $$
-\operatorname{vec}\{\Sigma\Sigma^\top(Y)\}=
-\check\alpha\,\operatorname{vec}(YY^\top)
+\mathrm{vec}\{\Sigma\Sigma^\top(Y)\}=
+\check\alpha\,\mathrm{vec}(YY^\top)
 +\check\beta\,Y+\check\gamma.
 $$
 

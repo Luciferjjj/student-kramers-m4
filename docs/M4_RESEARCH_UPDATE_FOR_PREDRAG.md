@@ -115,7 +115,7 @@ $$
 and
 
 $$
-\alpha=2\eta\,\operatorname{logistic}(\rho).
+\alpha=2\eta\,\mathrm{logistic}(\rho).
 $$
 
 Every optimizer proposal therefore satisfies global diffusion positivity and
@@ -136,7 +136,7 @@ The observed M3 versus M4 contrast is
 
 $$
 C_{\mathrm{obs}}=
-2\{\operatorname{NLL}_{M3}-\operatorname{NLL}_{M4}\}=
+2\{\mathrm{NLL}_{M3}-\mathrm{NLL}_{M4}\}=
 49.495.
 $$
 
@@ -272,14 +272,14 @@ coefficients or extrapolating the quadratic surface far beyond the data.
 For transition $k$, the information-omission contribution is
 
 $$
-\operatorname{IOS}_k=
+\mathrm{IOS}_k=
 \ell_k(\widehat\theta_{-k})-\ell_k(\widehat\theta),
 $$
 
 and the exact statistic is
 
 $$
-T_N=\sum_{k=1}^{2499}\operatorname{IOS}_k.
+T_N=\sum_{k=1}^{2499}\mathrm{IOS}_k.
 $$
 
 All 2499 transitions produced valid results in all three models:

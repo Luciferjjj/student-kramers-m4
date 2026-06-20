@@ -252,7 +252,7 @@ globally feasible. The tail condition is enforced through
 
 $$
 \alpha=
-2\eta\,\operatorname{logistic}(\rho),
+2\eta\,\mathrm{logistic}(\rho),
 $$
 
 which keeps $0<\alpha<2\eta$.
@@ -292,7 +292,7 @@ the contrast is
 
 $$
 C=
-2\{\operatorname{NLL}_{M3}-\operatorname{NLL}_{M4}\}.
+2\{\mathrm{NLL}_{M3}-\mathrm{NLL}_{M4}\}.
 $$
 
 Positive values favor M4. The M3 scenario measures false-positive behavior,
@@ -632,7 +632,7 @@ For transition $k$, let $\widehat\theta_{-k}$ be the estimate obtained
 after removing that transition. The information-omission contribution is
 
 $$
-\operatorname{IOS}_k=
+\mathrm{IOS}_k=
 \ell_k(\widehat\theta_{-k})
 -\ell_k(\widehat\theta).
 $$
@@ -641,7 +641,7 @@ The exact statistic is
 
 $$
 T_N=
-\sum_{k=1}^{2499}\operatorname{IOS}_k.
+\sum_{k=1}^{2499}\mathrm{IOS}_k.
 $$
 
 A large contribution means that the full-data fit predicts transition $k$
