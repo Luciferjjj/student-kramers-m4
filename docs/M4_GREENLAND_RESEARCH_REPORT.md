@@ -70,8 +70,7 @@ The present study asks whether the diffusion should also depend on the
 position coordinate. Predrag proposed the model
 
 $$
-q_{M4}(x,v)
-=
+q_{M4}(x,v)=
 \alpha v^2+\beta v+\gamma
 +\delta x^2+\epsilon xv+\zeta x.
 $$
@@ -114,8 +113,7 @@ Only the position coordinate is observed. The likelihood replaces the latent
 velocity by the forward difference
 
 $$
-\widehat V_{t_k}
-=
+\widehat V_{t_k}=
 \frac{X_{t_{k+1}}-X_{t_k}}{h}.
 $$
 
@@ -148,8 +146,7 @@ $$
 and
 
 $$
-dV_t
-=
+dV_t=
 \left[
 -\eta V_t+aX_t^3+bX_t^2+cX_t+d
 \right]dt
@@ -159,8 +156,7 @@ $$
 The common full parameter order is
 
 $$
-\theta
-=
+\theta=
 (\eta,a,b,c,d,\alpha,\beta,\gamma,\delta,\epsilon,\zeta).
 $$
 
@@ -221,8 +217,7 @@ recovery, bootstrap, and thousands of leave-one-out fits.
 Write the diffusion above a small numerical floor as
 
 $$
-q(x,v)-q_{\mathrm{floor}}
-=
+q(x,v)-q_{\mathrm{floor}}=
 \begin{bmatrix}
 x & v & 1
 \end{bmatrix}
@@ -237,8 +232,7 @@ $$
 where
 
 $$
-H
-=
+H=
 \begin{bmatrix}
 \delta & \epsilon/2 & \zeta/2\\
 \epsilon/2 & \alpha & \beta/2\\
@@ -257,8 +251,7 @@ with a lower-triangular matrix $L$. Every optimization proposal is then
 globally feasible. The tail condition is enforced through
 
 $$
-\alpha
-=
+\alpha=
 2\eta\,\operatorname{logistic}(\rho),
 $$
 
@@ -298,8 +291,7 @@ moderate, and strong M4 effects. Both M3 and M4 are fitted to every path, and
 the contrast is
 
 $$
-C
-=
+C=
 2\{\operatorname{NLL}_{M3}-\operatorname{NLL}_{M4}\}.
 $$
 
@@ -386,10 +378,8 @@ M3 improves the NLL by only 0.289 relative to M2. M4 improves it by 24.747
 relative to M3. The corresponding likelihood contrast is
 
 $$
-C_{\mathrm{obs}}
-=
-2\{8524.058929-8499.311650\}
-=
+C_{\mathrm{obs}}=
+2\{8524.058929-8499.311650\}=
 49.495.
 $$
 
@@ -423,8 +413,7 @@ $$
 \sum_{k=1}^{2499}
 \left\{
 \ell_{M3,k}-\ell_{M4,k}
-\right\}
-=
+\right\}=
 24.747.
 $$
 
@@ -643,8 +632,7 @@ For transition $k$, let $\widehat\theta_{-k}$ be the estimate obtained
 after removing that transition. The information-omission contribution is
 
 $$
-\operatorname{IOS}_k
-=
+\operatorname{IOS}_k=
 \ell_k(\widehat\theta_{-k})
 -\ell_k(\widehat\theta).
 $$
@@ -652,8 +640,7 @@ $$
 The exact statistic is
 
 $$
-T_N
-=
+T_N=
 \sum_{k=1}^{2499}\operatorname{IOS}_k.
 $$
 

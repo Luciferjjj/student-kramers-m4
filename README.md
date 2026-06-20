@@ -1,130 +1,158 @@
-# Student Kramers M4 research code
+# Student Kramers M4: position-dependent diffusion in the Greenland application
 
-This repository extends the partially observed Student Kramers model used for
-the Greenland ice-core calcium application. M4 adds position-dependent terms
-to the diffusion variance,
+This repository studies an M4 extension of the partially observed Student
+Kramers model used for the Greenland ice-core calcium record. M4 keeps the M3
+drift and allows the diffusion variance to depend on both position and
+velocity:
 
 $$
-q(x,v)=
-\alpha v^2+\beta v+\gamma+
-\delta x^2+\epsilon xv+\zeta x.
+q_{M4}(x,v)=\alpha v^2+\beta v+\gamma
++\delta x^2+\epsilon xv+\zeta x.
 $$
 
-The code is organized for continued collaboration and numerical experiments.
-The current repository is a research snapshot, not a final claim that M4 has
-replaced M3.
+The project builds on the
+[Strang splitting estimator repository](https://github.com/PredragPilipovic/nonlinear_multivariate_pearson_diffusions)
+by Predrag Pilipović. That repository contains the original Student Kramers
+simulation study, Greenland application, and reproduction scripts associated
+with the
+[supplementary software release](https://doi.org/10.5281/zenodo.19632952).
+The present repository is a research extension, not a replacement for the
+reference implementation.
 
-## Repository structure
+![Current M2, M3, and M4 real-data comparison](docs/figures/real_data_mechanisms.png)
 
-```text
-student_kramers/
-    General M1-M4 model definitions, Strang likelihoods, estimation,
-    simulation, recovery, discrimination, IOS, and bootstrap algorithms.
+## Research status
 
-greenland_application/
-    Greenland data access, real-data runners, application diagnostics,
-    IOS summaries, bootstrap summaries, and figures.
+The current M4 implementation uses a globally feasible Cholesky
+parameterization. Write
 
-notebooks/
-    Main interactive analysis notebook.
+$$
+q(x,v)-q_{\mathrm{floor}}=
+\begin{pmatrix}x&v&1\end{pmatrix}
+H
+\begin{pmatrix}x\\v\\1\end{pmatrix},
+\qquad
+H=LL^\top.
+$$
 
-docs/
-    English research report, code reference, selected figures, and a
-    Git-trackable numerical result snapshot.
+The optimizer also uses
 
-tests/
-    Numerical, regression, checkpoint, and workflow tests.
+$$
+\alpha=2\eta\,\operatorname{logistic}(\rho),
+$$
 
-data/
-    Local copy of the official workbook. The workbook is not tracked by Git.
-
-results/runs/
-    Local generated results and resumable checkpoints. These are not tracked.
-
-docs/results/
-    Compact tables used by the report. Current Cholesky results and
-    pre-Cholesky development results are separated explicitly.
-```
-
-The dependency direction is
-`greenland_application -> student_kramers`. The mathematical core does not
-depend on the application package.
-
-## Main files
-
-- [Research report](docs/M4_GREENLAND_RESEARCH_REPORT.md)
-- [Rendered research report](docs/M4_GREENLAND_RESEARCH_REPORT.pdf)
-- [Code reference](docs/CODE_REFERENCE.md)
-- [Report result snapshot](docs/results/README.md)
-- [Executed analysis notebook](notebooks/greenland_m4_analysis.ipynb)
-
-## Current numerical status
+so every M4 proposal satisfies global diffusion positivity and
+$0<\alpha<2\eta$.
 
 The current formal real-data run is `m4_real_data_cholesky`.
 
-| Model | NLL | AIC | BIC |
-|---|---:|---:|---:|
-| M2 | 8524.348 | 17060.695 | 17095.637 |
-| M3 | 8524.059 | 17064.118 | 17110.707 |
-| M4 | 8499.312 | 17020.623 | 17084.683 |
+| Model | Free parameters | NLL | AIC | BIC |
+|---|---:|---:|---:|---:|
+| M2 | 6 | 8524.348 | 17060.695 | 17095.637 |
+| M3 | 8 | 8524.059 | 17064.118 | 17110.707 |
+| M4 | 11 | 8499.312 | 17020.623 | 17084.683 |
 
-Completed calculations:
+The current M3 versus M4 contrast is 49.495. This is a descriptive
+improvement in the corrected partial pseudo-likelihood. It is not yet a
+formal model-selection result because the M3-null nested bootstrap has not
+been rerun with the final M4 optimizer.
 
-- M1-M4 nesting and moment-equation tests;
-- Cholesky-constrained M4 real-data fit;
-- shared sampled IOS pilot;
+### Completed current-optimizer calculations
+
+- M1 to M4 registry, nesting, likelihood, simulation, and moment-equation
+  tests;
+- Cholesky M4 real-data fit and optimization audit;
+- 100 predictive simulations for each of M2, M3, and M4;
+- transition-level decomposition of the M3 to M4 likelihood gain;
 - exact observed IOS for all 2499 transitions in M2, M3, and M4;
-- 500-replication M4 parametric bootstrap, with 496 successful fits;
-- 200-replication model-wise M4 IOS bootstrap, with 200 complete results.
-- 100 current-fit predictive simulations for each of M2, M3, and M4;
-- current transition-level M3/M4 likelihood decomposition and diffusion audit.
+- 500-replication M4 parametric bootstrap, with 496 successful refits;
+- 200-replication model-wise M4 IOS bootstrap, with 200 complete exact-IOS
+  results.
 
-The model-wise IOS upper-tail probability is 0.965. This does not find
-unusually large leave-one-out sensitivity under fitted M4. The lower-tail
-probability is 0.040 and is retained as a diagnostic.
+The model-wise IOS bootstrap gives upper-tail $p=0.965$. The observed path is
+not unusually sensitive to deleting one transition under fitted M4. Its
+lower-tail probability is 0.040, so the unusually low observed percentile is
+retained as a diagnostic.
 
-The current M3 versus M4 likelihood contrast has not yet been calibrated with
-a nested bootstrap using the Cholesky optimizer. The older nested bootstrap
-used an earlier M4 optimization strategy. It is retained under
-`docs/results/development/` as research history, not as a formal
-model-selection result for the current fit.
+### Evidence that is still historical
+
+The earlier direct-coefficient M4 fit, recovery studies, discrimination
+studies, and M3-null nested bootstrap used the pre-Cholesky optimizer. They are
+stored under `docs/results/development/` to document the research process.
+They are not combined with the current M4 likelihood contrast.
+
+## Documentation
+
+| Document | Intended use |
+|---|---|
+| [Short research update](docs/M4_RESEARCH_UPDATE_FOR_PREDRAG.md) | Current question, main results, ten selected figures, and open decisions |
+| [M4 implementation note](docs/M4_IMPLEMENTATION_NOTE_FOR_SUPERVISOR.md) | Mathematical design, Cholesky coordinates, likelihood integration, and validation |
+| [Full research report](docs/M4_GREENLAND_RESEARCH_REPORT.md) | Complete technical record, including predictive checks, bootstrap, and IOS |
+| [Rendered full report](docs/M4_GREENLAND_RESEARCH_REPORT.pdf) | PDF version of the full report |
+| [Code reference](docs/CODE_REFERENCE.md) | Function and module lookup dictionary |
+| [Result snapshot](docs/results/README.md) | Git-tracked current and historical evidence tables |
+| [Analysis notebook](notebooks/greenland_m4_analysis.ipynb) | Interactive inspection of saved results and figures |
+
+The private local archive also contains a detailed Chinese Python guide and a
+chronological Chinese research audit. They are intentionally excluded from
+GitHub.
+
+## Repository layout
+
+```text
+student-kramers-m4/
+├── student_kramers/          reusable mathematical and statistical code
+├── greenland_application/    Greenland data, runners, summaries, and figures
+├── notebooks/                interactive research notebook
+├── docs/                     collaborator-facing documentation and evidence
+│   ├── figures/              Git-tracked report figures
+│   └── results/              compact current and development result tables
+├── tests/                    numerical and workflow regression tests
+├── data/                     local cached workbook, excluded from Git
+└── results/runs/             local checkpoints and long-run outputs
+```
+
+The dependency direction is:
+
+```text
+greenland_application -> student_kramers
+```
+
+The core package does not import the application package.
 
 ## Installation
 
-Run the following commands from the repository root:
+The project requires Python 3.9 or later.
 
 ```bash
+git clone https://github.com/Luciferjjj/student-kramers-m4.git
+cd student-kramers-m4
+
 python3 -m venv .venv
 source .venv/bin/activate
 python3 -m pip install --upgrade pip
 python3 -m pip install -e .
 ```
 
-The project requires Python 3.9 or later and installs NumPy, pandas, SciPy,
-Matplotlib, Seaborn, Requests, OpenPyXL, and JupyterLab.
+The first data-loading run downloads the official workbook from the
+[University of Copenhagen Ice and Climate data archive](https://www.iceandclimate.nbi.ku.dk/data/)
+and caches it as `data/official_ice_data.xlsx`.
 
-## Tests
+## Verify the installation
+
+Run the complete test suite:
 
 ```bash
 python3 -m unittest discover tests -v
 ```
 
-The current suite contains 44 tests.
+The current suite contains 44 tests. It checks model nesting, diffusion
+constraints, likelihood regression values, moment propagation, recovery and
+discrimination workflows, checkpoint behavior, IOS, and bootstrap summaries.
 
-## Notebook
+## Fit the Greenland data
 
-```bash
-jupyter lab notebooks/greenland_m4_analysis.ipynb
-```
-
-The notebook is the main research interface. It loads saved results, displays
-tables, calls plotting functions, and records the current interpretation.
-Expensive fits are run from command modules so they can resume from CSV
-checkpoints.
-
-## Main commands
-
-Fit the real data:
+Run a fresh M1 to M4 comparison under a new run name:
 
 ```bash
 python3 -m greenland_application.run_application \
@@ -133,16 +161,41 @@ python3 -m greenland_application.run_application \
     --n-starts 8
 ```
 
-Run one simulation validation:
+Results are written to:
 
-```bash
-python3 -m student_kramers.run_validation \
-    --generate-model M4 \
-    --fit-models M3 M4 \
-    --run-name m4_validation
+```text
+results/runs/m4_trial/
 ```
 
-Run or resume exact IOS:
+Do not overwrite `m4_real_data_cholesky` when testing a modified numerical
+implementation. A new run name preserves the provenance of the formal fit.
+
+## Main analysis commands
+
+### Quick saved-fit check
+
+This command recomputes one likelihood from a local saved formal run:
+
+```bash
+python3 -m greenland_application.run_single \
+    --run-name m4_real_data_cholesky \
+    --model M4
+```
+
+### Predictive and pre-IOS diagnostics
+
+```bash
+python3 -m greenland_application.run_pre_ios \
+    --mode predictive \
+    --fit-run m4_real_data_cholesky \
+    --run-name m4_report_current \
+    --n-rep 100
+```
+
+### Exact observed IOS
+
+Small matrix exponentials are faster with one BLAS thread on the tested macOS
+setup:
 
 ```bash
 env VECLIB_MAXIMUM_THREADS=1 \
@@ -157,7 +210,7 @@ env VECLIB_MAXIMUM_THREADS=1 \
     --maxiter 120
 ```
 
-Build the IOS summaries and figures:
+Build IOS summaries and figures:
 
 ```bash
 python3 -m greenland_application.run_ios_analysis \
@@ -165,20 +218,9 @@ python3 -m greenland_application.run_ios_analysis \
     --run-name ios_observed
 ```
 
-Refresh the report tables and rebuild every report figure:
+### Current M3-null nested bootstrap
 
-```bash
-python3 -m greenland_application.run_report_assets --refresh-snapshot
-```
-
-Render the report:
-
-```bash
-quarto render docs/M4_GREENLAND_RESEARCH_REPORT.md --to html
-quarto render docs/M4_GREENLAND_RESEARCH_REPORT.md --to pdf
-```
-
-Run a new M3-null nested bootstrap with the current optimizer:
+The next formal model-comparison calculation is:
 
 ```bash
 python3 -m greenland_application.run_pre_ios \
@@ -188,35 +230,70 @@ python3 -m greenland_application.run_pre_ios \
     --n-rep 100
 ```
 
-Use a new run name for any calculation performed after changing the numerical
-implementation.
+The run is checkpointed and can be extended to 300 replications if the
+100-replication result is close to the decision boundary.
+
+## Reports and figures
+
+Refresh the compact result snapshot and rebuild the existing report figures:
+
+```bash
+python3 -m greenland_application.run_report_assets --refresh-snapshot
+```
+
+Render the collaborator-facing documents:
+
+```bash
+quarto render docs/M4_RESEARCH_UPDATE_FOR_PREDRAG.md --to html
+quarto render docs/M4_IMPLEMENTATION_NOTE_FOR_SUPERVISOR.md --to html
+quarto render docs/M4_GREENLAND_RESEARCH_REPORT.md --to html
+quarto render docs/M4_GREENLAND_RESEARCH_REPORT.md --to pdf
+```
+
+The reporting command reads saved tables. It does not rerun the expensive
+bootstrap or exact-IOS calculations.
 
 ## Results and provenance
 
-Generated results are saved under:
+Long calculations write replication-level or transition-level CSV
+checkpoints. Each resumable table has a neighboring `.meta.json` file with the
+model, parameter, data, code, and numerical-setting hashes. A run cannot
+resume if its saved identity no longer matches the current context.
+
+The full checkpoints under `results/runs/` are excluded from Git because they
+are large and repetitive. Selected evidence is copied to:
 
 ```text
-results/runs/<run_name>/
+docs/results/current/       current Cholesky M4 results
+docs/results/development/   pre-Cholesky historical results
 ```
 
-Long calculations write CSV checkpoints and a neighboring `.meta.json` file.
-The metadata records hashes of the data, fitted parameters, and implementation,
-plus the numerical settings. A checkpoint cannot resume when these values
-change.
-
-The full local bootstrap checkpoints are intentionally excluded from Git.
-Selected tables and provenance records are stored in `docs/results/`, while
-report figures are stored in `docs/figures/`. Development tables are labeled
-as pre-Cholesky evidence so they cannot be mistaken for current formal runs.
+See [the result manifest](docs/results/manifest.csv) for the source and status
+of each tracked table.
 
 ## Data
 
-The official Greenland workbook is downloaded on first use from the University
-of Copenhagen ice and climate data site and cached locally as
-`data/official_ice_data.xlsx`. The workbook is excluded from Git.
+The Greenland workbook is downloaded from:
 
-## Collaboration status
+[GICC05modelext GRIP, GISP2, and resampled data series, Seierstad et al.
+2014](https://www.iceandclimate.nbi.ku.dk/data/GICC05modelext_GRIP_and_GISP2_and_resampled_data_series_Seierstad_et_al._2014_version_10Dec2014-2.xlsx)
 
-The next required analysis is the M3-null nested bootstrap using the current
-Cholesky optimizer. Repeated M4 recovery and M3/M4 discrimination should also
-be rerun with the current optimizer before the method is treated as final.
+The analysis uses the 30 to 80 kyr BP interval after a 17 to 90 kyr BP
+prefilter. Calcium is negative-log transformed, centered inside the final
+window, and ordered from oldest to youngest. The observation spacing is
+$h=0.02$ kyr.
+
+## Current limitations and next steps
+
+This repository currently supports a narrower conclusion than "M4 is the
+selected final model."
+
+- M4 is numerically feasible under the Cholesky parameterization.
+- M4 improves the corrected partial pseudo-likelihood descriptively.
+- Its diffusion is stable over the observed state region despite a remote
+  near-boundary global minimum.
+- The finite-sample IOS upper-tail check does not reject fitted M4.
+- A current-optimizer M3-null nested bootstrap is still required for formal
+  M3 versus M4 calibration.
+- M4 recovery and M3/M4 discrimination should be repeated with the current
+  optimizer before they are treated as final methodological evidence.

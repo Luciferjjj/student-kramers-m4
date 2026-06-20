@@ -38,13 +38,12 @@ All models use the same full parameter order:
 The common SDE is
 
 $$
-dX_t = V_t\,dt,
-$$
-
-$$
-dV_t =
+\begin{aligned}
+dX_t &= V_t\,dt,\\
+dV_t &=
 \left[-\eta V_t + aX_t^3+bX_t^2+cX_t+d\right]dt
-+ \sqrt{q(X_t,V_t)}\,dW_t,
++ \sqrt{q(X_t,V_t)}\,dW_t.
+\end{aligned}
 $$
 
 with
