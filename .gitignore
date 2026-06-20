@@ -1,0 +1,33 @@
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.DS_Store
+.venv/
+*.egg-info/
+.pytest_cache/
+.coverage
+
+# Local editor and generated preview files.
+.vscode/
+tmp/
+*.html
+*_files/
+/.quarto/
+**/*.quarto_ipynb
+
+# The official workbook is downloaded automatically on first use.
+data/*.xlsx
+!data/.gitkeep
+
+# Numerical results are generated locally and can be large.
+results/*
+!results/runs/
+results/runs/*
+!results/runs/.gitkeep
+
+# Local Chinese working documents are kept outside the public Git history.
+M4_RESEARCH_WORKFLOW_ZH.md
+PYTHON_BEGINNER_GUIDE.md
+
+# Historical migration note retained locally, not part of the public project.
+MIGRATION.md
