@@ -411,9 +411,7 @@ The transition-level decomposition satisfies
 
 $$
 \sum_{k=1}^{2499}
-\left\{
-\ell_{M3,k}-\ell_{M4,k}
-\right\}=
+(\ell_{M3,k}-\ell_{M4,k})=
 24.747.
 $$
 
