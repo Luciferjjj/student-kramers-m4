@@ -548,7 +548,12 @@ def plot_waiting_time_comparison(waiting, save_path=None):
     return _finish(fig, save_path)
 
 
-def plot_discrimination(discrimination, observed_contrast, save_path=None):
+def plot_discrimination(
+    discrimination,
+    observed_contrast,
+    save_path=None,
+    title="M3-to-M4 likelihood contrast under each simulated truth",
+):
     """Show M3/M4 likelihood contrasts under each generating scenario."""
     valid = discrimination[discrimination["success"].astype(bool)].copy()
     order = ["M3", "weak", "moderate", "strong"]
@@ -568,14 +573,19 @@ def plot_discrimination(discrimination, observed_contrast, save_path=None):
     )
     ax.set_xlabel("Generating scenario")
     ax.set_ylabel(r"$2\{\mathrm{NLL}_{M3}-\mathrm{NLL}_{M4}\}$")
-    ax.set_title("M3-to-M4 likelihood contrast under each simulated truth",
-                 fontweight="bold")
+    ax.set_title(title, fontweight="bold")
     ax.legend(frameon=False)
     _style(ax)
     return _finish(fig, save_path)
 
 
-def plot_nested_bootstrap(nested, observed_contrast, save_path=None):
+def plot_nested_bootstrap(
+    nested,
+    observed_contrast,
+    save_path=None,
+    title="Nested-model comparison under fitted M3",
+    note=None,
+):
     """Compare the real-data M3/M4 contrast with its M3-null bootstrap."""
     values = nested.loc[nested["success"].astype(bool), "contrast"].to_numpy(dtype=float)
     fig, ax = plt.subplots(figsize=(9, 5.5))
@@ -601,14 +611,24 @@ def plot_nested_bootstrap(nested, observed_contrast, save_path=None):
         )
     ax.set_xlabel(r"$2\{\mathrm{NLL}_{M3}-\mathrm{NLL}_{M4}\}$")
     ax.set_ylabel("Density")
-    ax.set_title("Formal nested-model comparison under fitted M3",
-                 fontweight="bold")
+    ax.set_title(title, fontweight="bold")
+    if note:
+        ax.text(
+            0.02, 0.96, note, transform=ax.transAxes, ha="left", va="top",
+            fontsize=9,
+            bbox={"boxstyle": "round,pad=0.35", "facecolor": "#FFF4CC", "alpha": 0.95},
+        )
     ax.legend(frameon=False)
     _style(ax)
     return _finish(fig, save_path)
 
 
-def plot_recovery_study(recovery, references, save_path=None):
+def plot_recovery_study(
+    recovery,
+    references,
+    save_path=None,
+    title="Repeated parameter-recovery study",
+):
     """Summarize complete- and partial-observation parameter recovery."""
     valid = recovery[recovery["success"].astype(bool)].copy()
     error_rows = []
@@ -700,7 +720,7 @@ def plot_recovery_study(recovery, references, save_path=None):
     ax.legend(frameon=False)
     _style(ax)
 
-    fig.suptitle("Repeated parameter-recovery study", fontweight="bold", fontsize=16, y=1.02)
+    fig.suptitle(title, fontweight="bold", fontsize=16, y=1.02)
     return _finish(fig, save_path)
 
 
@@ -1000,6 +1020,34 @@ def plot_m4_parametric_bootstrap_parameters(parameter_summary, save_path=None):
 
     fig.suptitle(
         "M4 parametric bootstrap: parameter uncertainty from successful simulated refits",
+        fontweight="bold", fontsize=16, y=1.02,
+    )
+    return _finish(fig, save_path)
+
+
+def plot_m4_parameter_distributions(table, observed_params, save_path=None):
+    """Show the empirical bootstrap distribution of all eleven M4 coefficients."""
+    success = table.loc[table["success"].astype(bool)].copy()
+    observed_params = np.asarray(observed_params, dtype=float)
+    fig, axes = plt.subplots(3, 4, figsize=(15, 10))
+    axes = axes.ravel()
+
+    for index, (name, observed) in enumerate(zip(PARAM_NAMES, observed_params)):
+        ax = axes[index]
+        values = success[name].to_numpy(dtype=float)
+        q025, q975 = np.quantile(values, [0.025, 0.975])
+        ax.hist(values, bins=24, color=COLORS["M4"], alpha=0.72)
+        ax.axvline(observed, color="#D55E00", linewidth=2.0, label="observed fit")
+        ax.axvline(q025, color="black", linestyle="--", linewidth=1.0)
+        ax.axvline(q975, color="black", linestyle="--", linewidth=1.0)
+        ax.set_title(PARAM_LABELS[name], fontweight="bold")
+        ax.set_ylabel("Replications")
+        _style(ax)
+
+    axes[-1].axis("off")
+    axes[0].legend(frameon=False, fontsize=8)
+    fig.suptitle(
+        f"M4 parameter uncertainty from {len(success)} successful parametric-bootstrap refits",
         fontweight="bold", fontsize=16, y=1.02,
     )
     return _finish(fig, save_path)

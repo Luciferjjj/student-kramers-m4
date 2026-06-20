@@ -1,0 +1,42 @@
+evidence_class,status,file,source
+current,current Cholesky optimizer,current/model_fits.csv,results/runs/m4_real_data_cholesky/model_fits.csv
+current,current Cholesky optimizer,current/model_fits.csv.meta.json,results/runs/m4_real_data_cholesky/model_fits.csv.meta.json
+current,current Cholesky optimizer,current/q_min_audit.csv,results/runs/m4_report_current/q_min_audit.csv
+current,current Cholesky optimizer,current/transition_improvement.csv,results/runs/m4_report_current/transition_improvement.csv
+current,current Cholesky optimizer,current/predictive_summary.csv,results/runs/m4_report_current/predictive_summary.csv
+current,current Cholesky optimizer,current/predictive_behavior.csv,results/runs/m4_report_current/predictive_behavior.csv
+current,current Cholesky optimizer,current/predictive_density.csv,results/runs/m4_report_current/predictive_density.csv
+current,current Cholesky optimizer,current/predictive_waiting.csv,results/runs/m4_report_current/predictive_waiting.csv
+current,current Cholesky optimizer,current/m4_parametric_bootstrap.csv,results/runs/m4_parametric_bootstrap/m4_parametric_bootstrap.csv
+current,current Cholesky optimizer,current/m4_parametric_bootstrap_overview.csv,results/runs/m4_parametric_bootstrap/m4_parametric_bootstrap_overview.csv
+current,current Cholesky optimizer,current/m4_parametric_bootstrap_parameters.csv,results/runs/m4_parametric_bootstrap/m4_parametric_bootstrap_parameters.csv
+current,current Cholesky optimizer,current/m4_parametric_bootstrap_diffusion.csv,results/runs/m4_parametric_bootstrap/m4_parametric_bootstrap_diffusion.csv
+current,current Cholesky optimizer,current/m4_parametric_bootstrap_diffusion_summary.csv,results/runs/m4_parametric_bootstrap/m4_parametric_bootstrap_diffusion_summary.csv
+current,current Cholesky optimizer,current/m4_parametric_bootstrap_path_band.csv,results/runs/m4_parametric_bootstrap/m4_parametric_bootstrap_path_band.csv
+current,current Cholesky optimizer,current/ios_comparison.csv,results/runs/ios_observed/ios_comparison.csv
+current,current Cholesky optimizer,current/ios_pairwise_comparison.csv,results/runs/ios_observed/ios_pairwise_comparison.csv
+current,current Cholesky optimizer,current/ios_regime_summary.csv,results/runs/ios_observed/ios_regime_summary.csv
+current,current Cholesky optimizer,current/ios_transitions.csv,results/runs/ios_observed/ios_transitions.csv
+current,current Cholesky optimizer,current/ios_parameter_shifts.csv,results/runs/ios_observed/ios_parameter_shifts.csv
+current,current Cholesky optimizer,current/ios_validation.csv,results/runs/ios_observed/ios_validation.csv
+current,current Cholesky optimizer,current/m4_modelwise_ios_bootstrap.csv,results/runs/m4_modelwise_ios_bootstrap/m4_modelwise_ios_bootstrap.csv
+current,current Cholesky optimizer,current/m4_modelwise_ios_bootstrap_summary.csv,results/runs/m4_modelwise_ios_bootstrap/m4_modelwise_ios_bootstrap_summary.csv
+current,current Cholesky optimizer,current/m4_modelwise_ios_bootstrap_cumulative.csv,results/runs/m4_modelwise_ios_bootstrap/m4_modelwise_ios_bootstrap_cumulative.csv
+current,current Cholesky optimizer,current/m4_optimization_stability.csv,results/runs/ios_cholesky_audit_v2/m4_optimization_stability.csv
+development,pre-Cholesky optimizer; rerun required for formal use,development/m2_recovery_study.csv,_local_archive/results_history/runs/pre_ios_validation/m2_recovery_study.csv
+development,pre-Cholesky optimizer; rerun required for formal use,development/m2_recovery_study.csv.meta.json,_local_archive/results_history/runs/pre_ios_validation/m2_recovery_study.csv.meta.json
+development,pre-Cholesky optimizer; rerun required for formal use,development/m3_recovery_study.csv,_local_archive/results_history/runs/pre_ios_validation/m3_recovery_study.csv
+development,pre-Cholesky optimizer; rerun required for formal use,development/m3_recovery_study.csv.meta.json,_local_archive/results_history/runs/pre_ios_validation/m3_recovery_study.csv.meta.json
+development,pre-Cholesky optimizer; rerun required for formal use,development/m4_recovery_study.csv,_local_archive/results_history/runs/pre_ios_validation/m4_recovery_study.csv
+development,pre-Cholesky optimizer; rerun required for formal use,development/m4_recovery_study.csv.meta.json,_local_archive/results_history/runs/pre_ios_validation/m4_recovery_study.csv.meta.json
+development,pre-Cholesky optimizer; rerun required for formal use,development/discrimination_m3.csv,_local_archive/results_history/runs/pre_ios_validation/discrimination_m3.csv
+development,pre-Cholesky optimizer; rerun required for formal use,development/discrimination_m3.csv.meta.json,_local_archive/results_history/runs/pre_ios_validation/discrimination_m3.csv.meta.json
+development,pre-Cholesky optimizer; rerun required for formal use,development/discrimination_weak.csv,_local_archive/results_history/runs/pre_ios_validation/discrimination_weak.csv
+development,pre-Cholesky optimizer; rerun required for formal use,development/discrimination_weak.csv.meta.json,_local_archive/results_history/runs/pre_ios_validation/discrimination_weak.csv.meta.json
+development,pre-Cholesky optimizer; rerun required for formal use,development/discrimination_moderate.csv,_local_archive/results_history/runs/pre_ios_validation/discrimination_moderate.csv
+development,pre-Cholesky optimizer; rerun required for formal use,development/discrimination_moderate.csv.meta.json,_local_archive/results_history/runs/pre_ios_validation/discrimination_moderate.csv.meta.json
+development,pre-Cholesky optimizer; rerun required for formal use,development/discrimination_strong.csv,_local_archive/results_history/runs/pre_ios_validation/discrimination_strong.csv
+development,pre-Cholesky optimizer; rerun required for formal use,development/discrimination_strong.csv.meta.json,_local_archive/results_history/runs/pre_ios_validation/discrimination_strong.csv.meta.json
+development,pre-Cholesky optimizer; rerun required for formal use,development/m3_m4_nested_bootstrap.csv,_local_archive/results_history/runs/pre_ios_validation/m3_m4_nested_bootstrap.csv
+development,pre-Cholesky optimizer; rerun required for formal use,development/m3_m4_nested_bootstrap.csv.meta.json,_local_archive/results_history/runs/pre_ios_validation/m3_m4_nested_bootstrap.csv.meta.json
+development,pre-Cholesky optimizer; rerun required for formal use,development/m3_m4_nested_summary.csv,_local_archive/results_history/runs/pre_ios_validation/m3_m4_nested_summary.csv

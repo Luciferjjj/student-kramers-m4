@@ -1,0 +1,16 @@
+{
+  "code_hash": "fc452fc6b36c47335a06c503e570397b8bc658c52b9be67d023ced3f1ae670f0",
+  "data_hash": "c91dc58766d84747bb1cdfe3d371f9ca7e3e805131dece420087b0a05d642b05",
+  "h_obs": 0.02,
+  "h_sim": 0.001,
+  "model": "M2,M3,M4",
+  "parameter_hash": "9ab69cb691fd31808389f6555063b556321782a421d6d3860d0147276e41e7d7",
+  "settings": {
+    "blas_threads": 1,
+    "m2_m3_source": "m4_real_data_final",
+    "m4_n_starts": 1,
+    "m4_start_source": "previous Cholesky fit",
+    "method": "M4 Cholesky global-positivity parameterization"
+  },
+  "workflow": "model_fits"
+}

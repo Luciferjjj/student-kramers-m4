@@ -1,0 +1,34 @@
+{
+  "code_hash": "39420ca0d55775647d07c4275a763e9b79c75deeee144bc22bcd021e86c9d895",
+  "data_hash": "7c07b1df80274c39638d00279bd4a5000fa876da19a3d49f70e654e04bc22ed0",
+  "h_obs": 0.02,
+  "h_sim": 0.001,
+  "model": "M3",
+  "parameter_hash": "ddf697ed55cafb7f5a5cfc24cbc27e5ae74c33ca78dea44f7a66afc722f19056",
+  "settings": {
+    "h_obs": 0.02,
+    "h_sim": 0.001,
+    "init_state": [
+      1.5,
+      0.0
+    ],
+    "initial_params": [
+      50.0,
+      -200.0,
+      10.0,
+      100.0,
+      10.0,
+      30.0,
+      -5.0,
+      1000.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "n_obs": 2501,
+    "n_starts": 8,
+    "seed": 20260620,
+    "start_at_truth": false
+  },
+  "workflow": "recovery_study"
+}

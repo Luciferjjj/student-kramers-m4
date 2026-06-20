@@ -4,11 +4,11 @@ This repository extends the partially observed Student Kramers model used for
 the Greenland ice-core calcium application. M4 adds position-dependent terms
 to the diffusion variance,
 
-\[
+$$
 q(x,v)=
 \alpha v^2+\beta v+\gamma+
 \delta x^2+\epsilon xv+\zeta x.
-\]
+$$
 
 The code is organized for continued collaboration and numerical experiments.
 The current repository is a research snapshot, not a final claim that M4 has
@@ -29,7 +29,8 @@ notebooks/
     Main interactive analysis notebook.
 
 docs/
-    English research report, function reference, and selected figures.
+    English research report, code reference, selected figures, and a
+    Git-trackable numerical result snapshot.
 
 tests/
     Numerical, regression, checkpoint, and workflow tests.
@@ -39,6 +40,10 @@ data/
 
 results/runs/
     Local generated results and resumable checkpoints. These are not tracked.
+
+docs/results/
+    Compact tables used by the report. Current Cholesky results and
+    pre-Cholesky development results are separated explicitly.
 ```
 
 The dependency direction is
@@ -48,7 +53,9 @@ depend on the application package.
 ## Main files
 
 - [Research report](docs/M4_GREENLAND_RESEARCH_REPORT.md)
-- [Function reference](docs/FUNCTION_REFERENCE.md)
+- [Rendered research report](docs/M4_GREENLAND_RESEARCH_REPORT.pdf)
+- [Code reference](docs/CODE_REFERENCE.md)
+- [Report result snapshot](docs/results/README.md)
 - [Executed analysis notebook](notebooks/greenland_m4_analysis.ipynb)
 
 ## Current numerical status
@@ -69,6 +76,8 @@ Completed calculations:
 - exact observed IOS for all 2499 transitions in M2, M3, and M4;
 - 500-replication M4 parametric bootstrap, with 496 successful fits;
 - 200-replication model-wise M4 IOS bootstrap, with 200 complete results.
+- 100 current-fit predictive simulations for each of M2, M3, and M4;
+- current transition-level M3/M4 likelihood decomposition and diffusion audit.
 
 The model-wise IOS upper-tail probability is 0.965. This does not find
 unusually large leave-one-out sensitivity under fitted M4. The lower-tail
@@ -76,8 +85,9 @@ probability is 0.040 and is retained as a diagnostic.
 
 The current M3 versus M4 likelihood contrast has not yet been calibrated with
 a nested bootstrap using the Cholesky optimizer. The older nested bootstrap
-used an earlier M4 optimization strategy and is not a formal model-selection
-result for the current fit.
+used an earlier M4 optimization strategy. It is retained under
+`docs/results/development/` as research history, not as a formal
+model-selection result for the current fit.
 
 ## Installation
 
@@ -155,6 +165,19 @@ python3 -m greenland_application.run_ios_analysis \
     --run-name ios_observed
 ```
 
+Refresh the report tables and rebuild every report figure:
+
+```bash
+python3 -m greenland_application.run_report_assets --refresh-snapshot
+```
+
+Render the report:
+
+```bash
+quarto render docs/M4_GREENLAND_RESEARCH_REPORT.md --to html
+quarto render docs/M4_GREENLAND_RESEARCH_REPORT.md --to pdf
+```
+
 Run a new M3-null nested bootstrap with the current optimizer:
 
 ```bash
@@ -182,7 +205,9 @@ plus the numerical settings. A checkpoint cannot resume when these values
 change.
 
 The full local bootstrap checkpoints are intentionally excluded from Git.
-Selected figures needed by the research report are stored in `docs/figures/`.
+Selected tables and provenance records are stored in `docs/results/`, while
+report figures are stored in `docs/figures/`. Development tables are labeled
+as pre-Cholesky evidence so they cannot be mistaken for current formal runs.
 
 ## Data
 

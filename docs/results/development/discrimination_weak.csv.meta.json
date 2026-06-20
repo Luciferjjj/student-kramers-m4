@@ -1,0 +1,20 @@
+{
+  "code_hash": "39420ca0d55775647d07c4275a763e9b79c75deeee144bc22bcd021e86c9d895",
+  "data_hash": "7c07b1df80274c39638d00279bd4a5000fa876da19a3d49f70e654e04bc22ed0",
+  "h_obs": 0.02,
+  "h_sim": 0.001,
+  "model": "weak:M3_vs_M4",
+  "parameter_hash": "bc77164f8eb2aacedd46ef2ad8e8cc0157d1edbe70637d8bf1674a2e918fad6e",
+  "settings": {
+    "h_obs": 0.02,
+    "h_sim": 0.001,
+    "init_state": [
+      1.5,
+      0.0
+    ],
+    "n_obs": 2501,
+    "n_starts": 12,
+    "seed": 20260730
+  },
+  "workflow": "discrimination_study"
+}

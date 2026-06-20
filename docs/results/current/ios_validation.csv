@@ -1,0 +1,4 @@
+model,n_expected,n_rows,n_valid,n_missing,n_invalid,unexpected_rows,complete_and_valid
+M2,2499,2499,2499,0,0,0,True
+M3,2499,2499,2499,0,0,0,True
+M4,2499,2499,2499,0,0,0,True
