@@ -8,8 +8,8 @@ import argparse
 
 from . import config
 from .data_loading import load_model_fits, load_real_data
-from .likelihoods import partial_neg_log_lik
-from .models import MODELS, PARAM_NAMES, extract_free_params
+from student_kramers.likelihoods import partial_neg_log_lik
+from student_kramers.models import MODELS, PARAM_NAMES, extract_free_params
 
 
 def main():

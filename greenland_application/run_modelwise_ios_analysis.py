@@ -1,4 +1,4 @@
-"""Analyze a completed or partial model-wise IOS bootstrap run."""
+"""Analyze a completed or partial Greenland model-wise IOS bootstrap run."""
 import argparse
 
 from . import config

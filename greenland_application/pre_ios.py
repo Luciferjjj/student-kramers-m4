@@ -1,5 +1,5 @@
 """
-pre_ios.py - Diagnostics required before the IOS goodness-of-fit study
+pre_ios.py - Greenland diagnostics required before the IOS goodness-of-fit study
 
 This module keeps the pre-IOS research checks separate from the likelihood
 implementation.  It audits the fitted diffusion surface, records every M4
@@ -20,14 +20,14 @@ from .data_loading import (
     prepare_checkpoint,
     save_table,
 )
-from .estimation import (
+from student_kramers.estimation import (
     estimate_model,
     make_loss_fn,
     make_random_starts,
     run_estimator_m4,
 )
-from .likelihoods import partial_transition_nlls
-from .models import (
+from student_kramers.likelihoods import partial_transition_nlls
+from student_kramers.models import (
     PARAM_NAMES,
     diffusion_augmented_matrix,
     diffusion_minimum,
@@ -39,7 +39,7 @@ from .models import (
     extract_free_params,
     parameter_row,
 )
-from .simulation import (
+from student_kramers.simulation import (
     classify_regime,
     extract_waiting_times,
     path_summary_matrix,

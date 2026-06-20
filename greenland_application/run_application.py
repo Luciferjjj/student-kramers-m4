@@ -10,8 +10,8 @@ import argparse
 
 from . import config
 from .data_loading import load_model_fits, load_real_data, save_model_fits
-from .estimation import estimate_models
-from .models import MODELS, PARAM_NAMES
+from student_kramers.estimation import estimate_models
+from student_kramers.models import MODELS, PARAM_NAMES
 
 
 def main():

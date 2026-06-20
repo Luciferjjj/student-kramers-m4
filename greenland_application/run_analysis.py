@@ -2,7 +2,8 @@
 run_analysis.py - Compute numerical diagnostics for one fitted model.
 
 This script deliberately does not draw figures. It saves compact diagnostic
-tables that can be inspected and plotted directly in ``notebooks/final.ipynb``.
+tables that can be inspected and plotted in
+``notebooks/greenland_m4_analysis.ipynb``.
 """
 import argparse
 
@@ -11,8 +12,8 @@ import pandas as pd
 
 from . import config
 from .data_loading import load_model_fits, load_real_data, result_path, save_table
-from .models import MODELS, PARAM_NAMES
-from .simulation import (
+from student_kramers.models import MODELS, PARAM_NAMES
+from student_kramers.simulation import (
     compute_derived_params,
     extract_waiting_times,
     observed_summary,

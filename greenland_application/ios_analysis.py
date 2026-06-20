@@ -1,5 +1,5 @@
 """
-ios_analysis.py - Saved-table analysis for observed exact IOS
+ios_analysis.py - Saved-table analysis for observed Greenland exact IOS
 
 The numerical IOS computation remains in ``bootstrap.py``.  This module reads
 the transition-level checkpoints and constructs model-comparison tables for
@@ -9,8 +9,8 @@ explicitly labelled diagnostic rather than the formal statistic.
 import numpy as np
 import pandas as pd
 
-from .bootstrap import summarize_ios
-from .models import PARAM_NAMES, diffusion_augmented_matrix, free_names
+from student_kramers.bootstrap import summarize_ios
+from student_kramers.models import PARAM_NAMES, diffusion_augmented_matrix, free_names
 
 
 IOS_REFERENCE = {

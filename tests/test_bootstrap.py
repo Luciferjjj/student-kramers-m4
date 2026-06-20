@@ -14,7 +14,7 @@ from student_kramers.bootstrap import (
     run_parametric_bootstrap,
     summarize_ios,
 )
-from student_kramers.ios_analysis import (
+from greenland_application.ios_analysis import (
     build_ios_pairwise_comparison,
     build_ios_regime_summary,
 )

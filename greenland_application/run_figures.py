@@ -1,4 +1,4 @@
-"""Load saved research results and reproduce the current pre-IOS figures."""
+"""Load saved Greenland results and reproduce the current pre-IOS figures."""
 import argparse
 from pathlib import Path
 
@@ -6,7 +6,7 @@ import pandas as pd
 
 from . import config
 from .data_loading import load_model_fits, load_real_data, load_result
-from .discrimination import M4_EFFECT_SCALES
+from student_kramers.discrimination import M4_EFFECT_SCALES
 from .figures import (
     plot_discrimination,
     plot_m4_diffusion_audit,
@@ -29,7 +29,7 @@ def _save_path(directory, name):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--fit-run", default="m4_real_data_final")
+    parser.add_argument("--fit-run", default="m4_real_data_cholesky")
     parser.add_argument("--run-name", default="pre_ios_validation")
     args = parser.parse_args()
 

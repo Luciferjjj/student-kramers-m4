@@ -1,4 +1,4 @@
-"""Build saved IOS comparison tables and figures from completed checkpoints."""
+"""Build Greenland IOS comparison tables and figures from completed checkpoints."""
 import argparse
 
 from . import config

@@ -10,6 +10,7 @@ __pycache__/
 # Local editor and generated preview files.
 .vscode/
 tmp/
+_local_archive/
 *.html
 *_files/
 /.quarto/

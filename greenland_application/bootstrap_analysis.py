@@ -1,9 +1,9 @@
-"""Analysis helpers for saved parametric bootstrap runs."""
+"""Analysis helpers for saved Greenland parametric bootstrap runs."""
 import numpy as np
 import pandas as pd
 
 from . import config
-from .models import (
+from student_kramers.models import (
     PARAM_NAMES,
     diffusion_augmented_matrix,
     diffusion_minimum,

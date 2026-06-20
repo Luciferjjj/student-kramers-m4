@@ -3,10 +3,10 @@ run_bootstrap.py — IOS, parametric bootstrap, or nested-model contrast
 
 Examples
 --------
-python3 -m student_kramers.run_bootstrap --mode ios-pilot --model M4 --fit-run m4_real_data_final
-python3 -m student_kramers.run_bootstrap --mode ios --model M2 --fit-run m4_real_data_final
-python3 -m student_kramers.run_bootstrap --mode parametric --model M2 --n-boot 100 --ios
-python3 -m student_kramers.run_bootstrap --mode contrast --model M1 --contrast-alt M2 --n-boot 100
+python3 -m greenland_application.run_bootstrap --mode ios-pilot --model M4 --fit-run m4_real_data_cholesky
+python3 -m greenland_application.run_bootstrap --mode ios --model M2 --fit-run m4_real_data_cholesky
+python3 -m greenland_application.run_bootstrap --mode parametric --model M4 --n-boot 100
+python3 -m greenland_application.run_bootstrap --mode contrast --model M3 --contrast-alt M4 --n-boot 100
 """
 import argparse
 
@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 
 from . import config
-from .bootstrap import (
+from student_kramers.bootstrap import (
     influential_transitions,
     run_contrast_bootstrap,
     run_exact_ios,
@@ -22,9 +22,9 @@ from .bootstrap import (
     select_ios_pilot_transitions,
     summarize_ios,
 )
-from .estimation import make_random_starts
+from student_kramers.estimation import make_random_starts
 from .data_loading import load_model_fits, load_real_data, result_path, save_table
-from .models import MODELS, PARAM_NAMES, extract_free_params
+from student_kramers.models import MODELS, PARAM_NAMES, extract_free_params
 
 
 def _params(fits, model_name):

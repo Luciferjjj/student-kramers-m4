@@ -1,4 +1,4 @@
-"""Command-line entry point for diagnostics required before IOS."""
+"""Greenland command-line entry point for diagnostics required before IOS."""
 import argparse
 
 import pandas as pd
@@ -10,7 +10,7 @@ from .data_loading import (
     result_path,
     save_table,
 )
-from .models import PARAM_NAMES
+from student_kramers.models import PARAM_NAMES
 from .pre_ios import (
     audit_diffusion_minima,
     run_nested_m3_m4_bootstrap,
@@ -35,7 +35,7 @@ def main():
             "q-audit", "transition", "stability", "tolerance", "predictive", "nested",
         ],
     )
-    parser.add_argument("--fit-run", default="m4_real_data_final")
+    parser.add_argument("--fit-run", default="m4_real_data_cholesky")
     parser.add_argument("--run-name", default="pre_ios_validation")
     parser.add_argument("--n-rep", type=int, default=100)
     parser.add_argument("--n-starts", type=int, default=12)

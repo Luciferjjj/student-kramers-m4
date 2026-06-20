@@ -1,4 +1,4 @@
-"""Build saved tables and figures for parametric bootstrap runs."""
+"""Build saved Greenland tables and figures for parametric bootstrap runs."""
 import argparse
 
 from .data_loading import (
@@ -19,7 +19,7 @@ from .figures import (
     plot_m4_parametric_bootstrap_diffusion,
     plot_m4_parametric_bootstrap_parameters,
 )
-from .models import PARAM_NAMES
+from student_kramers.models import PARAM_NAMES
 
 
 def main():

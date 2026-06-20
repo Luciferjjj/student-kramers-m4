@@ -9,7 +9,7 @@ import pandas as pd
 
 from student_kramers import config
 from student_kramers.models import PARAM_NAMES, parameter_row
-from student_kramers.pre_ios import (
+from greenland_application.pre_ios import (
     audit_diffusion_minima,
     run_nested_m3_m4_bootstrap,
     run_predictive_checks_checkpointed,
@@ -50,8 +50,8 @@ class PreIOSTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory) / "nested.csv"
-            with patch("student_kramers.pre_ios.simulate_partial_data", fake_simulate), \
-                    patch("student_kramers.pre_ios.estimate_model", fake_estimate):
+            with patch("greenland_application.pre_ios.simulate_partial_data", fake_simulate), \
+                    patch("greenland_application.pre_ios.estimate_model", fake_estimate):
                 table = run_nested_m3_m4_bootstrap(
                     m3, m4, data, output, n_boot=1, verbose=False,
                 )
@@ -84,8 +84,8 @@ class PreIOSTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory) / "nested.csv"
-            with patch("student_kramers.pre_ios.simulate_partial_data", fake_simulate), \
-                    patch("student_kramers.pre_ios.estimate_model", fake_estimate):
+            with patch("greenland_application.pre_ios.simulate_partial_data", fake_simulate), \
+                    patch("greenland_application.pre_ios.estimate_model", fake_estimate):
                 run_nested_m3_m4_bootstrap(
                     m3, m4, data, output, n_boot=1, verbose=False,
                 )
@@ -106,7 +106,7 @@ class PreIOSTests(unittest.TestCase):
             np.linspace(-2.0, 2.0, 20),
         ])
         with patch(
-            "student_kramers.pre_ios.partial_transition_nlls",
+            "greenland_application.pre_ios.partial_transition_nlls",
             side_effect=[np.full(19, 2.0), np.full(19, 1.5)],
         ):
             table = transition_improvement_table(fits, data)
@@ -131,7 +131,7 @@ class PreIOSTests(unittest.TestCase):
                 name: root / f"{name}.csv"
                 for name in ("summary", "behavior", "waiting", "density_rep")
             }
-            with patch("student_kramers.pre_ios.simulate_trajectory", fake_simulation):
+            with patch("greenland_application.pre_ios.simulate_trajectory", fake_simulation):
                 run_predictive_checks_checkpointed(
                     fits, data, paths, n_rep=1, verbose=False,
                 )

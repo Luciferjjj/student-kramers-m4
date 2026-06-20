@@ -49,18 +49,19 @@ class WorkflowTests(unittest.TestCase):
 
     def test_module_entry_points_load(self):
         for module in (
-            "student_kramers.run_single",
-            "student_kramers.run_application",
-            "student_kramers.run_bootstrap",
-            "student_kramers.run_analysis",
             "student_kramers.run_validation",
             "student_kramers.run_recovery",
             "student_kramers.run_discrimination",
-            "student_kramers.run_pre_ios",
-            "student_kramers.run_figures",
-            "student_kramers.run_bootstrap_analysis",
-            "student_kramers.run_modelwise_ios_bootstrap",
-            "student_kramers.run_modelwise_ios_analysis",
+            "greenland_application.run_single",
+            "greenland_application.run_application",
+            "greenland_application.run_bootstrap",
+            "greenland_application.run_analysis",
+            "greenland_application.run_pre_ios",
+            "greenland_application.run_figures",
+            "greenland_application.run_ios_analysis",
+            "greenland_application.run_bootstrap_analysis",
+            "greenland_application.run_modelwise_ios_bootstrap",
+            "greenland_application.run_modelwise_ios_analysis",
         ):
             result = subprocess.run(
                 [sys.executable, "-m", module, "--help"],

@@ -1,5 +1,5 @@
 """
-run_modelwise_ios_bootstrap.py - parallel model-wise IOS bootstrap
+run_modelwise_ios_bootstrap.py - parallel Greenland model-wise IOS bootstrap
 
 One replication performs the strict finite-sample IOS calibration step:
 
@@ -25,7 +25,7 @@ import numpy as np
 import pandas as pd
 
 from . import config
-from .bootstrap import run_exact_ios, summarize_ios
+from student_kramers.bootstrap import run_exact_ios, summarize_ios
 from .bootstrap_analysis import safe_diffusion_rectangle_minimum
 from .data_loading import (
     checkpoint_context,
@@ -36,8 +36,8 @@ from .data_loading import (
     result_path,
     save_table,
 )
-from .estimation import estimate_model
-from .models import (
+from student_kramers.estimation import estimate_model
+from student_kramers.models import (
     PARAM_NAMES,
     constraints_valid,
     diffusion_minimum,
@@ -45,7 +45,7 @@ from .models import (
     extract_free_params,
     parameter_row,
 )
-from .simulation import simulate_partial_data
+from student_kramers.simulation import simulate_partial_data
 
 
 def _row_files(row_dir):

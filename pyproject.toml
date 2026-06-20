@@ -3,9 +3,9 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "student-kramers-research"
+name = "student-kramers-m4"
 version = "0.1.0"
-description = "Research workflow for partially observed Student Kramers models"
+description = "M4 extension of the partially observed Student Kramers Greenland application"
 requires-python = ">=3.9"
 dependencies = [
     "numpy>=2.0",
@@ -19,4 +19,4 @@ dependencies = [
 ]
 
 [tool.setuptools.packages.find]
-include = ["student_kramers*"]
+include = ["student_kramers*", "greenland_application*"]

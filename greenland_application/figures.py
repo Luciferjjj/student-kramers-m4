@@ -1,5 +1,5 @@
 """
-figures.py - Research figures for the unified M1-M4 Student Kramers workflow
+figures.py - Research figures for the Greenland M1-M4 workflow
 
 The figures answer model-comparison questions rather than merely displaying
 saved numbers.  Plotting stays separate from numerical experiments so the
@@ -12,14 +12,14 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-from .models import (
+from student_kramers.models import (
     PARAM_LABELS,
     PARAM_NAMES,
     diffusion_minimum,
     diffusion_variance,
     potential,
 )
-from .simulation import potential_extrema
+from student_kramers.simulation import potential_extrema
 
 
 COLORS = {"M1": "#7A7A7A", "M2": "#D55E00", "M3": "#0072B2", "M4": "#009E73"}
