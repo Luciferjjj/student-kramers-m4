@@ -343,9 +343,11 @@ latent simulated path.
 | `run_discrimination_study(...)` | Simulates partial data and fits M3 and M4 |
 | `summarize_discrimination(table)` | Summarizes convergence and likelihood contrasts |
 
-The study is intended to check whether the implementation can separate M3 and
-M4 under controlled simulation. Its small pilot runs are not a calibrated
-power analysis.
+The study checks whether the implementation can separate M3 and M4 under
+controlled simulation. The current run has 100 paths per scenario, but it is
+not a calibrated power analysis because scenario strength is defined by
+coefficient multipliers rather than a prespecified functional change in
+$q(x,v)$.
 
 ## Core command modules
 
@@ -399,7 +401,8 @@ remains verifiable.
 | `run_predictive_checks_checkpointed(...)` | Appendable predictive simulations and density summaries |
 | `run_predictive_checks(...)` | In-memory predictive check |
 | `run_nested_m3_m4_bootstrap(...)` | M3-null likelihood-contrast bootstrap |
-| `summarize_nested_bootstrap(...)` | Finite-sample contrast quantiles and upper-tail probability |
+| `summarize_nested_bootstrap(...)` | Contrast quantiles, corrected tail probability, Monte Carlo error, and exact exceedance interval |
+| `nested_bootstrap_cumulative(...)` | Cumulative corrected tail probability and runtime as valid replications accumulate |
 
 The helpers `_path_behavior`, `_density_band`, `_fixed_density_rows`, and
 `summarize_predictive_density` construct the saved predictive-check tables.
@@ -541,6 +544,8 @@ Current formal run names:
 | `m4_parametric_bootstrap` | M4 parameter and diffusion uncertainty |
 | `m4_modelwise_ios_bootstrap` | Finite-sample M4 IOS calibration |
 | `m4_report_current` | Current transition, diffusion, and predictive diagnostics used by the report |
+| `m3_m4_nested_cholesky_v2` | Current 100-replication M3-null nested comparison with 8 M3 and 12 M4 starts |
+| `m3_m4_simulation_cholesky` | Current 100-path M3/M4 recovery and discrimination studies |
 
 # Notebook
 

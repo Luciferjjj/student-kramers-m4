@@ -8,13 +8,14 @@ inspect the reported values without downloading local bootstrap checkpoints.
 
 `current/` contains results produced with the globally feasible Cholesky M4
 optimizer. These tables support the current real-data, predictive, parameter
-bootstrap, exact IOS, and model-wise IOS conclusions.
+bootstrap, exact IOS, model-wise IOS, M3-null nested comparison, recovery, and
+discrimination conclusions.
 
 `development/` contains the earlier recovery, discrimination, and M3-null
 bootstrap experiments. Those runs used the direct-coefficient M4 optimizer
 before the Cholesky parameterization was introduced. They document the
-research process and the design of the experiments, but they are not formal
-evidence for the current fitted M4 model.
+research process and the design of the experiments. Current replacements for
+these calculations are now available in `current/`.
 
 The file `manifest.csv` records the local source and evidence status of every
 copied table.

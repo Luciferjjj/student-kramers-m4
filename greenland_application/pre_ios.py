@@ -6,11 +6,13 @@ implementation.  It audits the fitted diffusion surface, records every M4
 optimization start, performs predictive checks, and bootstraps the nested
 M3-versus-M4 likelihood contrast.
 """
+import hashlib
 import time
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from scipy.stats import beta as beta_distribution
 
 from . import config
 from .data_loading import (
@@ -47,6 +49,11 @@ from student_kramers.simulation import (
     simulate_partial_data,
     simulate_trajectory,
 )
+
+
+def _workflow_source_hash():
+    """Fingerprint this application workflow in addition to the core package."""
+    return hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
 
 
 def audit_diffusion_minima(fits, data, margin=config.M4_DIAGNOSTIC_MARGIN):
@@ -607,15 +614,22 @@ def run_predictive_checks(fits, data, n_rep=100, seed=20260612, verbose=True):
 
 
 def run_nested_m3_m4_bootstrap(m3_params, m4_params, data, output_path,
-                               n_boot=100, seed=20260612, n_starts_m3=2,
+                               n_boot=100, seed=20260612, n_starts_m3=8,
                                n_starts_m4=12, resume=True, verbose=True):
-    """Bootstrap the M3-versus-M4 contrast using corrected M4 start sets."""
+    """
+    Bootstrap the M3-versus-M4 contrast with resumable Cholesky M4 refits.
+
+    ``n_boot`` is the target number of deterministic replication indices, not
+    part of checkpoint provenance. Increasing it therefore extends the same
+    run. Failed indices remain incomplete and are retried on the next call.
+    """
     data = np.asarray(data, dtype=float)
     output_path = Path(output_path)
     context = checkpoint_context(
         "nested_m3_m4_bootstrap", "M3_vs_M4", m3_params, data,
         m4_params=m4_params.tolist(), seed=seed,
         n_starts_m3=n_starts_m3, n_starts_m4=n_starts_m4,
+        workflow_source_hash=_workflow_source_hash(),
     )
     # n_boot is intentionally omitted so a completed pilot can be extended.
     prepare_checkpoint(output_path, context, resume=resume)
@@ -625,13 +639,23 @@ def run_nested_m3_m4_bootstrap(m3_params, m4_params, data, output_path,
         if len(table) and "success" in table else set()
     )
     rows = table.to_dict("records") if len(table) else []
+    attempts = (
+        table.set_index("rep")["attempt"].astype(int).to_dict()
+        if len(table) and "attempt" in table else {}
+    )
     init_state = tuple(data[0])
     n_obs = len(data) + 1
 
     for rep in range(n_boot):
         if rep in completed:
             continue
-        row = {"rep": rep, "seed": seed + rep, "success": False, "error": ""}
+        row = {
+            "rep": rep,
+            "attempt": attempts.get(rep, 0) + 1,
+            "seed": seed + rep,
+            "success": False,
+            "error": "",
+        }
         t0 = time.perf_counter()
         try:
             boot_data = simulate_partial_data(
@@ -647,15 +671,43 @@ def run_nested_m3_m4_bootstrap(m3_params, m4_params, data, output_path,
                 extra_starts=[extract_free_params(m4_params, "M4")],
             )
             _, q_min_m4 = diffusion_minimum(m4_hat)
+            _, q_min_observed = diffusion_rectangle_minimum(m4_hat, boot_data)
+            _, q_min_protected = diffusion_rectangle_minimum(
+                m4_hat, boot_data, margin=config.M4_DIAGNOSTIC_MARGIN,
+            )
+            augmented_eigenvalue_min = float(np.min(np.linalg.eigvalsh(
+                diffusion_augmented_matrix(m4_hat),
+            )))
             row.update({
                 "nll_m3": nll_m3,
                 "nll_m4": nll_m4,
                 "contrast": 2.0*(nll_m3 - nll_m4),
+                "gain_per_transition": (
+                    (nll_m3 - nll_m4)/(len(boot_data) - 1)
+                ),
                 "convergence_m3": conv_m3,
                 "convergence_m4": conv_m4,
                 "nested_violation": bool(nll_m4 > nll_m3 + 1e-6),
+                "boundary_equivalent": bool(abs(nll_m3 - nll_m4) <= 1e-6),
                 "q_min_m4": q_min_m4,
+                "q_min_observed_m4": q_min_observed,
+                "q_min_protected_m4": q_min_protected,
+                "augmented_eigenvalue_min_m4": augmented_eigenvalue_min,
+                "tail_margin_m4": float(2.0*m4_hat[0] - m4_hat[5]),
+                "position_term_norm_m4": float(np.linalg.norm(m4_hat[8:11])),
+                "boot_x_mean": float(np.mean(boot_data[:, 0])),
+                "boot_x_sd": float(np.std(boot_data[:, 0], ddof=1)),
+                "boot_v_mean": float(np.mean(boot_data[:, 1])),
+                "boot_v_sd": float(np.std(boot_data[:, 1], ddof=1)),
                 "success": conv_m3 == 0 and conv_m4 == 0 and nll_m4 <= nll_m3 + 1e-6,
+            })
+            row.update({
+                f"m3_{name}": value
+                for name, value in zip(PARAM_NAMES, m3_hat)
+            })
+            row.update({
+                f"m4_{name}": value
+                for name, value in zip(PARAM_NAMES, m4_hat)
             })
         except Exception as exc:
             row["error"] = f"{type(exc).__name__}: {exc}"
@@ -672,19 +724,91 @@ def run_nested_m3_m4_bootstrap(m3_params, m4_params, data, output_path,
 
 
 def summarize_nested_bootstrap(table, observed_contrast):
-    """Return finite-sample nested-comparison bootstrap diagnostics."""
+    """Return finite-sample contrast and Monte Carlo precision diagnostics."""
     valid = table.loc[table["success"].astype(bool), "contrast"].to_numpy(dtype=float)
+    times = (
+        table["time_sec"].to_numpy(dtype=float)
+        if "time_sec" in table else np.full(len(table), np.nan)
+    )
+    n_valid = len(valid)
+    n_exceed = int(np.sum(valid >= observed_contrast)) if n_valid else 0
+    p_upper = (
+        float((n_exceed + 1)/(n_valid + 1))
+        if n_valid else np.nan
+    )
+    if n_valid:
+        ci_low = (
+            0.0 if n_exceed == 0 else
+            float(beta_distribution.ppf(
+                0.025, n_exceed, n_valid - n_exceed + 1,
+            ))
+        )
+        ci_high = (
+            1.0 if n_exceed == n_valid else
+            float(beta_distribution.ppf(
+                0.975, n_exceed + 1, n_valid - n_exceed,
+            ))
+        )
+        p_mcse = float(np.sqrt(p_upper*(1.0 - p_upper)/(n_valid + 1)))
+        extend_to_300 = bool(ci_low <= 0.05 <= ci_high)
+    else:
+        ci_low = ci_high = p_mcse = np.nan
+        extend_to_300 = True
+
     return pd.DataFrame([{
         "observed_contrast": float(observed_contrast),
         "n_boot": int(len(table)),
-        "n_valid": int(len(valid)),
-        "success_rate": float(len(valid)/len(table)) if len(table) else np.nan,
+        "n_valid": int(n_valid),
+        "n_failed": int(len(table) - n_valid),
+        "success_rate": float(n_valid/len(table)) if len(table) else np.nan,
         "contrast_mean": float(np.mean(valid)) if len(valid) else np.nan,
         "contrast_median": float(np.median(valid)) if len(valid) else np.nan,
+        "contrast_q025": float(np.quantile(valid, 0.025)) if len(valid) else np.nan,
         "contrast_q95": float(np.quantile(valid, 0.95)) if len(valid) else np.nan,
+        "contrast_q975": float(np.quantile(valid, 0.975)) if len(valid) else np.nan,
         "contrast_q99": float(np.quantile(valid, 0.99)) if len(valid) else np.nan,
-        "p_upper": (
-            float((np.sum(valid >= observed_contrast) + 1)/(len(valid) + 1))
-            if len(valid) else np.nan
+        "n_exceed": n_exceed,
+        "p_upper": p_upper,
+        "p_upper_mcse": p_mcse,
+        "exceedance_ci95_low": ci_low,
+        "exceedance_ci95_high": ci_high,
+        "extend_to_300": extend_to_300,
+        "median_time_sec": (
+            float(np.nanmedian(times)) if len(table) and np.isfinite(times).any()
+            else np.nan
+        ),
+        "total_time_hours": (
+            float(np.nansum(times)/3600.0) if len(table) and np.isfinite(times).any()
+            else np.nan
         ),
     }])
+
+
+def nested_bootstrap_cumulative(table, observed_contrast):
+    """Track the corrected upper-tail probability as valid runs accumulate."""
+    valid = (
+        table.loc[table["success"].astype(bool)].copy()
+    )
+    if "rep" not in valid:
+        valid["rep"] = np.arange(len(valid), dtype=int)
+    valid = valid.sort_values("rep").reset_index(drop=True)
+    if valid.empty:
+        return pd.DataFrame(columns=[
+            "n_valid", "rep", "contrast", "n_exceed", "p_upper",
+            "cumulative_time_hours",
+        ])
+    exceed = (valid["contrast"].to_numpy(dtype=float) >= observed_contrast).astype(int)
+    n_valid = np.arange(1, len(valid) + 1)
+    cumulative_exceed = np.cumsum(exceed)
+    times = (
+        valid["time_sec"].to_numpy(dtype=float)
+        if "time_sec" in valid else np.zeros(len(valid), dtype=float)
+    )
+    return pd.DataFrame({
+        "n_valid": n_valid,
+        "rep": valid["rep"].to_numpy(dtype=int),
+        "contrast": valid["contrast"].to_numpy(dtype=float),
+        "n_exceed": cumulative_exceed,
+        "p_upper": (cumulative_exceed + 1)/(n_valid + 1),
+        "cumulative_time_hours": np.cumsum(times)/3600.0,
+    })

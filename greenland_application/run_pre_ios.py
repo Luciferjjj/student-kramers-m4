@@ -13,6 +13,7 @@ from .data_loading import (
 from student_kramers.models import PARAM_NAMES
 from .pre_ios import (
     audit_diffusion_minima,
+    nested_bootstrap_cumulative,
     run_nested_m3_m4_bootstrap,
     run_optimization_stability,
     run_predictive_checks_checkpointed,
@@ -39,7 +40,7 @@ def main():
     parser.add_argument("--run-name", default="pre_ios_validation")
     parser.add_argument("--n-rep", type=int, default=100)
     parser.add_argument("--n-starts", type=int, default=12)
-    parser.add_argument("--n-starts-m3", type=int, default=2)
+    parser.add_argument("--n-starts-m3", type=int, default=8)
     parser.add_argument("--seeds", nargs="+", type=int, default=[42, 314, 2026])
     parser.add_argument("--seed", type=int, default=20260612)
     parser.add_argument("--no-warm-start", action="store_true")
@@ -114,6 +115,10 @@ def main():
         )
         summary = summarize_nested_bootstrap(table, observed)
         save_table(summary, result_path("m3_m4_nested_summary", run_name=args.run_name))
+        save_table(
+            nested_bootstrap_cumulative(table, observed),
+            result_path("m3_m4_nested_cumulative", run_name=args.run_name),
+        )
         print(summary.to_string(index=False))
 
 

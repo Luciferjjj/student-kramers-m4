@@ -1,7 +1,7 @@
 ---
 title: "Implementation note for the M4 Student Kramers extension"
 author: "Zisen Pan"
-date: "2026-06-20"
+date: "2026-06-21"
 date-format: "MMMM D, YYYY"
 format:
   html:
@@ -400,25 +400,73 @@ docs/results/current/       current Cholesky M4 evidence
 docs/results/development/   pre-Cholesky historical experiments
 ```
 
-## 9. Remaining modelling questions
+## 9. Technical decisions requested
 
-The Cholesky representation solves the feasibility problem, but it does not
-settle the scientific comparison between M3 and M4.
+The Cholesky representation solves the feasibility problem, but several parts
+of the current formulation still require a modelling decision.
 
-First, the current M4 fit is close to the positive semidefinite boundary in a
-remote part of the state space, while its diffusion remains far from zero on
-the observed path. The distinction between global geometry and
-data-supported behavior should remain explicit.
+### 9.1 Domain of the positivity constraint
 
-Second, the three direct position-dependent coefficients are more variable
-than the fitted diffusion function. Interpretation should therefore focus on
-$q(x,v)$ over relevant states rather than on isolated coefficient signs.
+The current model requires
 
-Third, M3 is a boundary submodel of M4. A current M3-null nested bootstrap is
-still needed to calibrate the observed likelihood contrast under the final
-optimizer. The earlier bootstrap used the pre-Cholesky M4 procedure and is
-not a formal calibration of the current fit.
+$$
+q(x,v)\geq q_{\mathrm{floor}}
+\qquad\text{for every }(x,v)\in\mathbb R^2.
+$$
 
-Finally, recovery and discrimination experiments that involve M4 should be
-rerun with the same optimizer before they are used as final methodological
-evidence.
+This global condition is stronger than positivity on the observed path or on
+a scientifically relevant phase-space region. The current M4 fit is close to
+the PSD boundary only in a remote extrapolation region; its diffusion remains
+far from zero on the observed path. The first decision is therefore whether
+global PSD positivity is part of the intended M4 model or a conservative
+computational choice.
+
+### 9.2 Optimizer and parameterization
+
+The current estimator uses Cholesky coordinates, finite-difference gradients,
+multistart L-BFGS-B, an M3 boundary start, and optional M4 warm starts. This
+combination is reproducible and keeps all proposals feasible. The open
+question is whether it should be treated as the final estimator or compared
+with another constrained optimizer or parameterization as a sensitivity
+analysis.
+
+### 9.3 Theoretical restrictions and numerical safeguards
+
+Three types of restriction should be distinguished:
+
+1. the Student Kramers tail condition $0<\alpha<2\eta$;
+2. the numerical diffusion floor $q_{\mathrm{floor}}=10^{-8}$;
+3. finite search bounds on the Cholesky coordinates, including
+   $0\leq l_{11}\leq 50$.
+
+The first is a model condition. The latter two primarily make optimization
+well-defined. Before treating the current parameterization as final, it
+should be decided whether the floor and search bounds have a scientific
+interpretation or should instead be justified through a pre-specified
+sensitivity analysis. Because M4 bounds are imposed in Cholesky coordinates,
+their implied ranges for the reported coefficients do not coincide with the
+direct-coordinate bounds used by M1 to M3. For example,
+$0\leq l_{11}\leq 50$ implies $0\leq\delta\leq2500$.
+
+### 9.4 Near-boundary behavior in the nested bootstrap
+
+M3 is a boundary submodel of M4. The current M3-null bootstrap completed 100
+valid replications with a corrected upper-tail probability of 0.1386. Two
+replications reached the $l_{11}$ search bound, and several upper-tail fits
+approached the diffusion floor on their simulated data rectangle.
+
+These replications are feasible outputs of the stated estimator and remain in
+the formal null distribution. They must not be removed after inspection. The
+technical decision is whether this behavior should motivate wider bounds,
+regularization, or a narrower scientifically defined M4 alternative.
+
+### 9.5 Interpretation target
+
+Current recovery and parametric bootstrap results show that the diffusion
+function is more stable than the three direct position-dependent
+coefficients. Interpretation should therefore focus on $q(x,v)$ over relevant
+states. If individual coefficient signs are scientifically important, the
+present evidence does not identify them precisely enough.
+
+The concise list of questions for the next meeting is given in
+[`M4_RESEARCH_UPDATE_FOR_PREDRAG.md`](M4_RESEARCH_UPDATE_FOR_PREDRAG.md).

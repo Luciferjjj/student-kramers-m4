@@ -47,8 +47,9 @@ functions.
 - **Development evidence** records earlier recovery, discrimination, and
   M3-null bootstrap runs made before the Cholesky parameterization.
 
-Development results explain what was tried and what must be rerun. They are
-not combined with the current M4 likelihood contrast.
+Current replacements now exist for recovery, discrimination, and the
+M3-null nested comparison. Development results remain available only as a
+record of the earlier optimization strategy.
 """
     ),
     code(
@@ -78,6 +79,7 @@ from greenland_application.figures import (
     plot_m4_parametric_bootstrap_parameters,
     plot_modelwise_ios_bootstrap,
     plot_nested_bootstrap,
+    plot_nested_bootstrap_diagnostics,
     plot_predictive_densities,
     plot_predictive_percentiles,
     plot_real_data_mechanisms,
@@ -125,24 +127,23 @@ plt.show()
         r"""
 ## 2. Simulation validation
 
-The original simulation programme contained:
+The current simulation programme contains:
 
 1. complete-data recovery using latent \((X,V)\);
 2. partial-data recovery after discarding \(V\) and reconstructing
    \(\widehat V\);
-3. repeated M2, M3, and M4 recovery;
+3. repeated M3 and M4 recovery;
 4. M3/M4 discrimination under M3 and weak, moderate, and strong M4 truth.
 
-The saved studies below used the pre-Cholesky M4 optimizer. They are retained
-as development evidence and must be rerun before they support a final
-methodological claim.
+The tables below use the current Cholesky optimizer. Each recovery design has
+100 paths, and each discrimination scenario has 100 paths.
 """
     ),
     code(
         """
 recovery = []
-for model in ("M2", "M3", "M4"):
-    table = pd.read_csv(DEVELOPMENT / f"{model.lower()}_recovery_study.csv")
+for model in ("M3", "M4"):
+    table = pd.read_csv(CURRENT / f"{model.lower()}_recovery_study.csv")
     table["model"] = model
     recovery.append(table)
 recovery = pd.concat(recovery, ignore_index=True)
@@ -159,7 +160,7 @@ recovery.groupby(["model", "observation"]).agg(
 plot_recovery_study(
     recovery,
     config.REFERENCE_PARAMS_BY_MODEL,
-    title="Development recovery study (pre-Cholesky M4 optimizer)",
+    title="Current-optimizer M3 and M4 recovery study",
 )
 plt.show()
 """
@@ -168,7 +169,7 @@ plt.show()
         """
 scenarios = ("m3", "weak", "moderate", "strong")
 discrimination = pd.concat(
-    [pd.read_csv(DEVELOPMENT / f"discrimination_{name}.csv") for name in scenarios],
+    [pd.read_csv(CURRENT / f"discrimination_{name}.csv") for name in scenarios],
     ignore_index=True,
 )
 discrimination.groupby("truth").agg(
@@ -181,11 +182,12 @@ discrimination.groupby("truth").agg(
     ),
     code(
         """
-old_nested = pd.read_csv(DEVELOPMENT / "m3_m4_nested_summary.csv").iloc[0]
+current_nested = pd.read_csv(CURRENT / "m3_m4_nested_summary.csv").iloc[0]
 plot_discrimination(
     discrimination,
-    float(old_nested["observed_contrast"]),
-    title="Development discrimination pilot (pre-Cholesky M4 optimizer)",
+    float(current_nested["observed_contrast"]),
+    title="Current-optimizer M3/M4 discrimination study",
+    decision_threshold=float(current_nested["contrast_q95"]),
 )
 plt.show()
 """
@@ -303,8 +305,7 @@ The project uses three different bootstrap designs.
 3. **M4 model-wise IOS bootstrap:** is observed leave-one-out sensitivity
    unusually large under fitted M4?
 
-Only designs 2 and 3 use the current Cholesky optimizer. Design 1 remains a
-historical diagnostic until rerun.
+All three designs now use the current Cholesky optimizer where M4 is refitted.
 """
     ),
     code(
@@ -349,21 +350,20 @@ pd.read_csv(CURRENT / "m4_bootstrap_derived_summary.csv").round(4)
     ),
     markdown(
         r"""
-### Historical M3-null bootstrap
+### Current M3-null bootstrap
 
-The figure below used the earlier direct-coefficient M4 optimizer and the old
-observed contrast. It documents the previous calculation only. The current
-contrast cannot be inserted into this old null distribution.
+The formal run generated 100 partial-observation samples from current fitted
+M3. It used 8 starts for M3 and 12 starts for Cholesky M4. Thirteen null
+contrasts were at least as large as the observed contrast.
 """
     ),
     code(
         """
-old_nested_table = pd.read_csv(DEVELOPMENT / "m3_m4_nested_bootstrap.csv")
-plot_nested_bootstrap(
-    old_nested_table,
-    float(old_nested["observed_contrast"]),
-    title="Development M3-null bootstrap (pre-Cholesky M4 optimizer)",
-    note="Historical diagnostic only; not valid for the current M4 fit",
+display(pd.read_csv(CURRENT / "m3_m4_nested_summary.csv").round(4))
+plot_nested_bootstrap_diagnostics(
+    pd.read_csv(CURRENT / "m3_m4_nested_bootstrap.csv"),
+    pd.read_csv(CURRENT / "m3_m4_nested_cumulative.csv"),
+    float(current_nested["observed_contrast"]),
 )
 plt.show()
 """
@@ -454,9 +454,14 @@ The predictive simulations still switch more often than the observed path,
 and the position distribution remains too narrow. M4 therefore improves the
 local likelihood without solving every model-check discrepancy.
 
-M4 has not yet been formally selected over M3. The next required experiment
-is the M3-null nested bootstrap using the current Cholesky optimizer. Repeated
-recovery and discrimination should then be rerun with the same optimizer.
+The current M3-null nested bootstrap gives an upper-tail probability of
+0.1386 and a null 95% threshold of 78.848. The observed contrast 49.495 does
+not select M4 over M3 at the 5% level.
+
+Current recovery succeeds numerically, but the three new M4 coefficients are
+much less stable than the fitted diffusion function. The present
+discrimination scenarios are all below the calibrated null threshold and
+should be redesigned using functional separation in \(q(x,v)\).
 """
     ),
     markdown(

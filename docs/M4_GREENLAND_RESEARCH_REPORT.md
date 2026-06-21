@@ -2,7 +2,7 @@
 title: "Position-dependent diffusion in the Greenland Student Kramers model"
 subtitle: "Implementation, simulation studies, real-data comparison, bootstrap uncertainty, and IOS diagnostics"
 author: "Zisen Pan"
-date: "2026-06-20"
+date: "2026-06-21"
 date-format: "MMMM YYYY"
 format:
   html:
@@ -42,19 +42,23 @@ predictive simulations show a modest improvement in switching behavior, but
 all three fitted models still generate position paths that are too
 concentrated and usually switch more often than the observed record.
 
-Three bootstrap questions are kept separate. An earlier 300-replication
-M3-null bootstrap used the pre-Cholesky optimizer and is retained only as
-development history. A current 500-replication M4 parametric bootstrap gives
-496 successful refits and shows substantial compensation among the individual
-diffusion coefficients, while the diffusion function over the observed state
-region is much more stable. Exact information-omission sensitivity was
-computed for all 2499 transitions in M2, M3, and M4. A current
-200-replication model-wise M4 IOS bootstrap gives an upper-tail probability of
-0.965, so the observed path is not unusually sensitive to deleting one
-transition under fitted M4. M4 is therefore numerically viable and changes the
-fitted stochastic mechanism in a measurable way. It has not yet been formally
-selected over M3 because the M3-null bootstrap must be rerun with the current
-optimizer.
+Three bootstrap questions are kept separate. The 500-replication M4
+parametric bootstrap gives 496 successful refits and shows substantial
+compensation among the individual diffusion coefficients, while the
+diffusion function over the observed state region is more stable. Exact
+information-omission sensitivity was computed for all 2499 transitions in M2,
+M3, and M4. A 200-replication model-wise M4 IOS bootstrap gives an upper-tail
+probability of 0.965, so the observed path is not unusually sensitive to
+deleting one transition under fitted M4.
+
+The current M3-null nested bootstrap completed 100 valid replications using 8
+starts for M3 and 12 starts for Cholesky M4. Thirteen null contrasts were at
+least as large as the observed contrast 49.495, giving a corrected upper-tail
+probability of 0.1386. The null 95% quantile is 78.848. A 95% exact interval
+for the exceedance probability is $[0.071,0.212]$, so extending the run to 300
+is not required for the current 5% decision. M4 is numerically viable and
+changes the fitted stochastic mechanism, but the finite-sample comparison
+does not select it over M3.
 
 ## 1. Research question and relation to the previous project
 
@@ -91,9 +95,9 @@ The project follows the same research sequence as the previous report:
 7. calculate exact IOS and calibrate it under fitted M4;
 8. use a separate M3-null bootstrap for formal M3 versus M4 comparison.
 
-The final step has not yet been rerun with the current optimizer. The report
-therefore distinguishes current Cholesky results from earlier development
-experiments.
+All eight steps have now been run with the current optimizer where M4 is
+involved. Earlier direct-coefficient results remain in the report only as
+development history.
 
 ## 2. Greenland calcium data and preprocessing
 
@@ -298,69 +302,58 @@ $$
 Positive values favor M4. The M3 scenario measures false-positive behavior,
 while the M4 scenarios study sensitivity to the added diffusion terms.
 
-### 5.2 Development recovery study
+### 5.2 Current recovery study
 
-The saved recovery experiment contains ten trajectories per model, with one
-complete and one partial fit for each trajectory. All 60 fits completed. The
-median relative RMSE of the fitted diffusion along the latent path was:
+The recovery study was rerun with the current optimizer using 100 M3 paths and
+100 M4 paths. Each path produced one complete-observation fit and one
+partial-observation fit. All 400 fits converged.
 
-| Model | Complete data | Partial data |
-|---|---:|---:|
-| M2 | 0.078 | 0.177 |
-| M3 | 0.090 | 0.167 |
-| M4 | 0.107 | 0.185 |
+| Model | Observation | Successful fits | Median relative RMSE of $q$ |
+|---|---|---:|---:|
+| M3 | complete | 100/100 | 0.096 |
+| M3 | partial | 100/100 | 0.197 |
+| M4 | complete | 100/100 | 0.119 |
+| M4 | partial | 100/100 | 0.216 |
 
-As expected, hiding the velocity makes recovery less precise. M4 is also
-slower because it estimates a two-dimensional quadratic diffusion surface.
-Its median fitting time increased from about 7 seconds for complete data to
-421 seconds for partial data.
+![Current recovery study](figures/current_recovery.png)
 
-![Development recovery study](figures/development_recovery.png)
+**Figure 2. Current complete and partial recovery.** Panel A reports relative
+parameter RMSE. Panel B compares recovery of the diffusion function along the
+latent path. Panel C records numerical success, and Panel D isolates the three
+new M4 coefficients. The diffusion function is recovered more reliably than
+$\delta,\epsilon,\zeta$ separately. Partial observation increases error but
+does not cause numerical failure.
 
-**Figure 2. Complete and partial recovery in the development study.** Panel A
-shows relative parameter RMSE. Panel B compares recovery of the diffusion
-function along the latent simulated path. Panel C records numerical success,
-and Panel D isolates the three new M4 coefficients. The function-level error
-is more stable than the coefficient-level error, which indicates
-compensation among $\delta,\epsilon,\zeta$ and the older diffusion terms.
-These runs used the pre-Cholesky optimizer and must be repeated before they
-are treated as formal validation of the current implementation.
+### 5.3 Current discrimination study
 
-### 5.3 Development discrimination study
+The current discrimination study used 100 paths in each of four scenarios.
+All 400 M3 and M4 comparisons completed. The contrast summaries were:
 
-The discrimination pilot used ten paths in each scenario. M4 obtained a lower
-NLL in all ten M3-generated paths as well as all M4-generated paths. The
-median contrasts were 4.35 under M3, 6.74 under weak M4, 3.81 under moderate
-M4, and 15.71 under strong M4.
+| Truth | Median contrast | 97.5% quantile | Maximum |
+|---|---:|---:|---:|
+| M3 | 3.812 | 25.515 | 32.530 |
+| weak M4 | 3.703 | 24.450 | 39.316 |
+| moderate M4 | 3.910 | 19.470 | 22.434 |
+| strong M4 | 10.358 | 31.761 | 43.189 |
 
-![Development M3/M4 discrimination study](figures/development_discrimination.png)
+![Current M3/M4 discrimination study](figures/current_discrimination.png)
 
-**Figure 3. M3/M4 discrimination pilot.** Each point is one partial-observation
-trajectory, and the horizontal line is the old real-data contrast. The strong
-M4 scenario tends to produce larger contrasts, but weak and moderate effects
-are not ordered and M4 wins every M3-generated path. With ten trajectories
-per scenario and no calibrated threshold, this is not a power study. The
-result shows why the nested null bootstrap is necessary and why these
-scenarios should be rerun with the current optimizer.
+**Figure 3. Current discrimination study.** The green line is the real-data
+contrast 49.495. The dotted line is the current M3-null 95% threshold 78.848.
+No scenario reaches either line. The existing weak, moderate, and strong
+coefficient multipliers are therefore too weak for a useful power claim.
 
-### 5.4 What the simulation results currently establish
+### 5.4 What the current simulation results establish
 
-The development recovery study shows that the complete and partial pipelines
-run end to end and that diffusion functions can be recovered more reliably
-than individual coefficients. It does not establish current-optimizer
-coverage or power.
+The current estimator is numerically stable in these recovery experiments,
+and the diffusion function is recoverable at a useful scale under both
+observation schemes. The new M4 coefficients are not individually precise.
 
-The required update is therefore specific:
-
-1. rerun repeated M2, M3, and M4 recovery with the Cholesky optimizer used by
-   the real-data M4 fit;
-2. increase the number of trajectories beyond ten;
-3. summarize both parameter recovery and function recovery over the state
-   region visited by each path;
-4. recalibrate the weak, moderate, and strong M4 effects so that their
-   functional separation is interpretable;
-5. evaluate discrimination relative to an M3-null bootstrap threshold rather
-   than the rule $C>0$.
+The discrimination result is more limited. It does not show that M3 and M4
+can be separated at the effect sizes currently encoded in the simulation
+design. A future power study should define scenarios by the resulting change
+in $q(x,v)$ over a stated state distribution, rather than by multiplying
+three coefficients by an arbitrary factor.
 
 ## 6. Real-data fitting and model comparison
 
@@ -530,29 +523,42 @@ They must not be interpreted as interchangeable.
 | M4 parametric bootstrap | fitted M4 | M4 | How uncertain are M4 parameters and fitted functions? |
 | M4 model-wise IOS bootstrap | fitted M4 | M4 plus 2499 leave-one-out fits | Is observed IOS unusually large under M4? |
 
-The current M4 parametric and model-wise IOS bootstraps use the Cholesky
-optimizer. The saved M3-null nested bootstrap does not.
+All three current calculations use the Cholesky M4 optimizer where M4 is
+refitted.
 
-### 8.1 Historical M3-null bootstrap
+### 8.1 Current M3-null bootstrap
 
-The earlier nested bootstrap generated 300 trajectories under fitted M3 and
-refitted M3 and M4 to each partial-observation path. It used the old observed
-contrast 34.819 and the direct-coefficient M4 optimizer. All 300 replications
-completed. The null median was 10.405, its 95th percentile was 51.612, and the
-finite-sample upper-tail probability was 0.110.
+The current nested bootstrap generated 100 trajectories under the fitted M3
+model. Each simulated velocity path was discarded and reconstructed from
+position before fitting. M3 used 8 starts and M4 used 12 starts, including the
+fitted M3 boundary and the observed M4 warm start. All 100 replications were
+valid.
 
-![Historical M3-null bootstrap](figures/development_nested_bootstrap.png)
+| Quantity | Value |
+|---|---:|
+| Observed contrast | 49.495 |
+| Null median | 15.315 |
+| Null 95% interval | [2.138, 207.615] |
+| Null 95% quantile | 78.848 |
+| Exceedances | 13/100 |
+| Corrected upper-tail probability | 0.1386 |
+| Monte Carlo standard error | 0.0344 |
+| Exceedance probability 95% interval | [0.071, 0.212] |
 
-**Figure 10. Development M3-null bootstrap.** The histogram is the old
-finite-sample null distribution and the vertical line is the old observed
-contrast. This result was useful during development because it showed that
-positive M3 to M4 improvements can occur under M3. It is not valid for the
-current real-data contrast 49.495 because both the observed M4 estimator and
-the bootstrap M4 estimator have changed.
+![Current M3-null bootstrap](figures/current_nested_bootstrap.png)
 
-The correct next calculation is to generate from the current fitted M3 and
-refit M4 with the current Cholesky optimizer in every replication. The old
-null distribution will not be reused.
+**Figure 10. Current M3-null bootstrap.** The observed contrast lies below the
+null 95% quantile. The corrected tail probability stabilizes above 0.05.
+Large null gains are associated with large fitted position terms, and three
+upper-tail fits bring the diffusion close to its floor on the simulated data
+rectangle.
+
+The null distribution is strongly right-skewed. Two replications reached the
+Cholesky $l_{11}$ search bound, which corresponds to $\delta=2500$. These
+feasible fits remain in the formal null distribution. Removing them after
+inspection would change the test. Their presence does identify a modelling
+issue: some M3-generated samples let M4 obtain a large likelihood gain by
+approaching a near-floor diffusion surface.
 
 ## 9. M4 parametric bootstrap
 
@@ -761,7 +767,7 @@ The current evidence answers several different questions.
 | Are M4 coefficients precisely estimated? | No. Several intervals are wide and cross zero. | Function-level diffusion is more stable than coefficients. |
 | Does M4 reproduce observed densities and persistence? | Partly. Velocity and switching improve modestly. | Position spread and long waiting times remain poorly reproduced. |
 | Is observed IOS unusually large under M4? | No. Upper-tail probability is 0.965. | The observed statistic is unusually low in the opposite tail. |
-| Is M4 formally selected over M3? | Not yet. | Current-optimizer M3-null bootstrap is missing. |
+| Is M4 formally selected over M3? | No at the 5% level. The current upper-tail probability is 0.1386. | The null distribution is right-skewed and includes near-floor M4 fits. |
 
 The strongest current conclusion is that M4 changes the fitted stochastic
 mechanism without destabilizing the likelihood on the observed path. The
@@ -778,22 +784,23 @@ the drift, rather than by local likelihood alone.
 
 ## 13. Required next experiments
 
-The report is ready as a research update, but three calculations remain before
-a final model-selection conclusion.
+The nested comparison, current recovery, and current discrimination study are
+complete. The next experiments should address the limitations they exposed.
 
-1. **Current M3-null nested bootstrap.** Simulate under the current fitted M3
-   and refit M3 and Cholesky M4 in every replication. Compare the resulting
-   null distribution with $C_{\mathrm{obs}}=49.495$.
-2. **Current repeated recovery.** Rerun complete and partial M2, M3, and M4
-   recovery with more than ten paths and summarize function recovery over the
-   visited state region.
-3. **Current discrimination study.** Recalibrate weak, moderate, and strong M4
-   effects, increase replication counts, and evaluate detection against the
-   nested-bootstrap threshold.
+1. **Near-floor sensitivity.** Examine the few M3-null samples in which M4
+   drives the diffusion close to its floor or reaches a Cholesky search bound.
+   This should be reported as estimator behavior, not removed post hoc.
+2. **Function-calibrated discrimination.** Replace the current coefficient
+   multipliers with scenarios defined by the change in $q(x,v)$ over a stated
+   phase-space distribution.
+3. **Persistence-oriented model revision.** Test whether the mismatch in
+   position spread and waiting times is better addressed by drift or latent
+   state structure than by more local diffusion flexibility.
 
-The M4 model-wise IOS bootstrap can remain at 200 replications for the planned
-upper-tail conclusion. Extending it to 500 would mainly refine the lower-tail
-probability.
+The 100-replication nested bootstrap does not need extension to 300 for the
+current 5% decision because its exceedance interval lies above 0.05. The M4
+model-wise IOS bootstrap can also remain at 200 replications for its planned
+upper-tail conclusion.
 
 ## 14. Reproducibility and repository structure
 
@@ -859,8 +866,14 @@ fit and modestly improves switching behavior, but it still understates
 position spread and regime persistence. Its observed IOS is not unusually
 large under a strict model-wise bootstrap.
 
-The remaining inferential question is narrower than the initial
-implementation problem. M4 is numerically valid and scientifically
-interesting. Whether its real-data likelihood improvement is stronger than
-the improvement expected from extra flexibility under M3 will be answered by
-the current-optimizer M3-null bootstrap.
+The current nested bootstrap resolves the main model-comparison question.
+The observed contrast is not unusually large under the fitted M3 null when
+both models use the current optimization pipeline. M4 should therefore be
+described as a numerically valid and scientifically interpretable extension
+that improves descriptive fit, not as a model formally selected over M3.
+
+The most informative next work is to understand the near-floor M4 fits that
+create the heavy null tail and to redesign simulation effects at the function
+level. The predictive mismatch in position spread and regime persistence also
+remains. These limitations matter more than adding bootstrap replications to
+an already non-borderline result.

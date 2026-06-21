@@ -23,6 +23,22 @@ current,current Cholesky optimizer,current/m4_modelwise_ios_bootstrap.csv,result
 current,current Cholesky optimizer,current/m4_modelwise_ios_bootstrap_summary.csv,results/runs/m4_modelwise_ios_bootstrap/m4_modelwise_ios_bootstrap_summary.csv
 current,current Cholesky optimizer,current/m4_modelwise_ios_bootstrap_cumulative.csv,results/runs/m4_modelwise_ios_bootstrap/m4_modelwise_ios_bootstrap_cumulative.csv
 current,current Cholesky optimizer,current/m4_optimization_stability.csv,results/runs/ios_cholesky_audit_v2/m4_optimization_stability.csv
+current,current Cholesky optimizer,current/m3_m4_nested_bootstrap.csv,results/runs/m3_m4_nested_cholesky_v2/m3_m4_nested_bootstrap.csv
+current,current Cholesky optimizer,current/m3_m4_nested_bootstrap.csv.meta.json,results/runs/m3_m4_nested_cholesky_v2/m3_m4_nested_bootstrap.csv.meta.json
+current,current Cholesky optimizer,current/m3_m4_nested_summary.csv,results/runs/m3_m4_nested_cholesky_v2/m3_m4_nested_summary.csv
+current,current Cholesky optimizer,current/m3_m4_nested_cumulative.csv,results/runs/m3_m4_nested_cholesky_v2/m3_m4_nested_cumulative.csv
+current,current Cholesky optimizer,current/m3_recovery_study.csv,results/runs/m3_m4_simulation_cholesky/m3_recovery_study.csv
+current,current Cholesky optimizer,current/m3_recovery_study.csv.meta.json,results/runs/m3_m4_simulation_cholesky/m3_recovery_study.csv.meta.json
+current,current Cholesky optimizer,current/m4_recovery_study.csv,results/runs/m3_m4_simulation_cholesky/m4_recovery_study.csv
+current,current Cholesky optimizer,current/m4_recovery_study.csv.meta.json,results/runs/m3_m4_simulation_cholesky/m4_recovery_study.csv.meta.json
+current,current Cholesky optimizer,current/discrimination_m3.csv,results/runs/m3_m4_simulation_cholesky/discrimination_m3.csv
+current,current Cholesky optimizer,current/discrimination_weak.csv,results/runs/m3_m4_simulation_cholesky/discrimination_weak.csv
+current,current Cholesky optimizer,current/discrimination_moderate.csv,results/runs/m3_m4_simulation_cholesky/discrimination_moderate.csv
+current,current Cholesky optimizer,current/discrimination_strong.csv,results/runs/m3_m4_simulation_cholesky/discrimination_strong.csv
+current,current Cholesky optimizer,current/discrimination_m3.csv.meta.json,results/runs/m3_m4_simulation_cholesky/discrimination_m3.csv.meta.json
+current,current Cholesky optimizer,current/discrimination_weak.csv.meta.json,results/runs/m3_m4_simulation_cholesky/discrimination_weak.csv.meta.json
+current,current Cholesky optimizer,current/discrimination_moderate.csv.meta.json,results/runs/m3_m4_simulation_cholesky/discrimination_moderate.csv.meta.json
+current,current Cholesky optimizer,current/discrimination_strong.csv.meta.json,results/runs/m3_m4_simulation_cholesky/discrimination_strong.csv.meta.json
 development,pre-Cholesky optimizer; rerun required for formal use,development/m2_recovery_study.csv,_local_archive/results_history/runs/pre_ios_validation/m2_recovery_study.csv
 development,pre-Cholesky optimizer; rerun required for formal use,development/m2_recovery_study.csv.meta.json,_local_archive/results_history/runs/pre_ios_validation/m2_recovery_study.csv.meta.json
 development,pre-Cholesky optimizer; rerun required for formal use,development/m3_recovery_study.csv,_local_archive/results_history/runs/pre_ios_validation/m3_recovery_study.csv

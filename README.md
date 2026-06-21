@@ -21,6 +21,13 @@ reference implementation.
 
 ![Current M2, M3, and M4 real-data comparison](docs/figures/real_data_mechanisms.png)
 
+> **Supervisor: start here.** The concise
+> [current M4 research update](docs/M4_RESEARCH_UPDATE_FOR_PREDRAG.md) contains
+> the main result, five discussion questions, five selected figures, and the
+> proposed next steps. GitHub renders its equations directly in the browser.
+> The [full PDF report](docs/M4_GREENLAND_RESEARCH_REPORT.pdf) is available as
+> a fixed-layout alternative.
+
 ## Research status
 
 The current M4 implementation uses a globally feasible Cholesky
@@ -52,10 +59,12 @@ The current formal real-data run is `m4_real_data_cholesky`.
 | M3 | 8 | 8524.059 | 17064.118 | 17110.707 |
 | M4 | 11 | 8499.312 | 17020.623 | 17084.683 |
 
-The current M3 versus M4 contrast is 49.495. This is a descriptive
-improvement in the corrected partial pseudo-likelihood. It is not yet a
-formal model-selection result because the M3-null nested bootstrap has not
-been rerun with the final M4 optimizer.
+The current M3 versus M4 contrast is 49.495. The current M3-null nested
+bootstrap has also been completed with the same optimizer. Thirteen of 100
+null contrasts were at least as large as the observed value, giving a
+corrected upper-tail probability of 0.1386. The null 95% quantile is 78.848.
+The descriptive improvement therefore does not provide finite-sample evidence
+at the 5% level for selecting M4 over M3.
 
 ### Completed current-optimizer calculations
 
@@ -67,25 +76,31 @@ been rerun with the final M4 optimizer.
 - exact observed IOS for all 2499 transitions in M2, M3, and M4;
 - 500-replication M4 parametric bootstrap, with 496 successful refits;
 - 200-replication model-wise M4 IOS bootstrap, with 200 complete exact-IOS
-  results.
+  results;
+- 100-replication current-optimizer M3-null nested bootstrap, with 100 valid
+  M3 and Cholesky M4 refits;
+- current-optimizer recovery with 100 M3 and 100 M4 paths under both complete
+  and partial observation;
+- current-optimizer M3/M4 discrimination with 100 paths in each of four
+  generating scenarios.
 
 The model-wise IOS bootstrap gives upper-tail $p=0.965$. The observed path is
 not unusually sensitive to deleting one transition under fitted M4. Its
 lower-tail probability is 0.040, so the unusually low observed percentile is
 retained as a diagnostic.
 
-### Evidence that is still historical
+### Historical evidence
 
-The earlier direct-coefficient M4 fit, recovery studies, discrimination
-studies, and M3-null nested bootstrap used the pre-Cholesky optimizer. They are
-stored under `docs/results/development/` to document the research process.
-They are not combined with the current M4 likelihood contrast.
+The earlier direct-coefficient M4 fit and the first recovery, discrimination,
+and nested-bootstrap experiments used the pre-Cholesky optimizer. They remain
+under `docs/results/development/` as research history. Current replacements
+are stored under `docs/results/current/`.
 
 ## Documentation
 
 | Document | Intended use |
 |---|---|
-| [Short research update](docs/M4_RESEARCH_UPDATE_FOR_PREDRAG.md) | Current question, main results, ten selected figures, and open decisions |
+| [Short research update](docs/M4_RESEARCH_UPDATE_FOR_PREDRAG.md) | Five-minute supervisor briefing, five selected figures, decisions requested, and next steps |
 | [M4 implementation note](docs/M4_IMPLEMENTATION_NOTE_FOR_SUPERVISOR.md) | Mathematical design, Cholesky coordinates, likelihood integration, and validation |
 | [Full research report](docs/M4_GREENLAND_RESEARCH_REPORT.md) | Complete technical record, including predictive checks, bootstrap, and IOS |
 | [Rendered full report](docs/M4_GREENLAND_RESEARCH_REPORT.pdf) | PDF version of the full report |
@@ -220,18 +235,22 @@ python3 -m greenland_application.run_ios_analysis \
 
 ### Current M3-null nested bootstrap
 
-The next formal model-comparison calculation is:
+The completed calculation can be reproduced or extended from its checkpoint:
 
 ```bash
 python3 -m greenland_application.run_pre_ios \
     --mode nested \
     --fit-run m4_real_data_cholesky \
-    --run-name m3_m4_nested_cholesky \
-    --n-rep 100
+    --run-name m3_m4_nested_cholesky_v2 \
+    --n-rep 100 \
+    --n-starts-m3 8 \
+    --n-starts 12
 ```
 
-The run is checkpointed and can be extended to 300 replications if the
-100-replication result is close to the decision boundary.
+The target count is omitted from checkpoint identity, so `--n-rep 300` would
+extend the same run without repeating completed indices. Extension is not
+required for the current decision because the 95% interval for the underlying
+exceedance probability is $[0.071,0.212]$, which excludes 0.05.
 
 ## Reports and figures
 
@@ -293,7 +312,14 @@ selected final model."
 - Its diffusion is stable over the observed state region despite a remote
   near-boundary global minimum.
 - The finite-sample IOS upper-tail check does not reject fitted M4.
-- A current-optimizer M3-null nested bootstrap is still required for formal
-  M3 versus M4 calibration.
-- M4 recovery and M3/M4 discrimination should be repeated with the current
-  optimizer before they are treated as final methodological evidence.
+- The current nested bootstrap does not select M4 over M3 at the 5% level.
+- The null distribution is strongly right-skewed. A few M4 refits use very
+  large position terms and approach the diffusion floor on simulated data.
+- Current recovery confirms that the diffusion function is more stable than
+  the three new coefficients.
+- The existing weak, moderate, and strong discrimination scenarios remain
+  below the calibrated nested threshold after 100 paths per scenario. This is
+  not a calibrated power study because effect size was defined by coefficient
+  multipliers rather than functional separation.
+- The next scientific work should examine near-floor null fits and redesign
+  discrimination scenarios using functional separation in $q(x,v)$.

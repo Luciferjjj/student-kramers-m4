@@ -11,6 +11,7 @@ from student_kramers import config
 from student_kramers.models import PARAM_NAMES, parameter_row
 from greenland_application.pre_ios import (
     audit_diffusion_minima,
+    nested_bootstrap_cumulative,
     run_nested_m3_m4_bootstrap,
     run_predictive_checks_checkpointed,
     summarize_nested_bootstrap,
@@ -58,6 +59,9 @@ class PreIOSTests(unittest.TestCase):
 
         self.assertTrue(table.loc[0, "success"])
         self.assertEqual(table.loc[0, "contrast"], 2.0)
+        self.assertIn("m3_eta", table)
+        self.assertIn("m4_delta", table)
+        self.assertIn("q_min_observed_m4", table)
         self.assertEqual([call[0] for call in calls], ["M3", "M4"])
         np.testing.assert_allclose(calls[1][1], m3)
 
@@ -68,6 +72,12 @@ class PreIOSTests(unittest.TestCase):
         })
         summary = summarize_nested_bootstrap(table, observed_contrast=3.0)
         self.assertEqual(summary.loc[0, "p_upper"], 0.5)
+        self.assertEqual(summary.loc[0, "n_exceed"], 1)
+        self.assertTrue(summary.loc[0, "extend_to_300"])
+
+        cumulative = nested_bootstrap_cumulative(table, observed_contrast=3.0)
+        np.testing.assert_allclose(cumulative["p_upper"], [0.5, 1/3, 0.5])
+        self.assertEqual(cumulative["n_exceed"].tolist(), [0, 0, 1])
 
     def test_nested_bootstrap_can_be_extended_without_rerunning(self):
         m3 = config.REFERENCE_PARAMS_BY_MODEL["M3"]
@@ -95,6 +105,7 @@ class PreIOSTests(unittest.TestCase):
 
         self.assertEqual(len(table), 3)
         self.assertEqual(calls, [20260612, 20260613, 20260614])
+        self.assertEqual(table["attempt"].tolist(), [1, 1, 1])
 
     def test_transition_improvement_sums_transition_gains(self):
         fits = pd.DataFrame([

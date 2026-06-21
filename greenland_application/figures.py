@@ -553,6 +553,7 @@ def plot_discrimination(
     observed_contrast,
     save_path=None,
     title="M3-to-M4 likelihood contrast under each simulated truth",
+    decision_threshold=None,
 ):
     """Show M3/M4 likelihood contrasts under each generating scenario."""
     valid = discrimination[discrimination["success"].astype(bool)].copy()
@@ -571,6 +572,14 @@ def plot_discrimination(
         observed_contrast, color=COLORS["M4"], linewidth=2,
         label=f"real-data contrast = {observed_contrast:.1f}",
     )
+    if decision_threshold is not None:
+        ax.axhline(
+            decision_threshold,
+            color="black",
+            linewidth=1.8,
+            linestyle=":",
+            label=f"M3-null 95% threshold = {decision_threshold:.1f}",
+        )
     ax.set_xlabel("Generating scenario")
     ax.set_ylabel(r"$2\{\mathrm{NLL}_{M3}-\mathrm{NLL}_{M4}\}$")
     ax.set_title(title, fontweight="bold")
@@ -620,6 +629,125 @@ def plot_nested_bootstrap(
         )
     ax.legend(frameon=False)
     _style(ax)
+    return _finish(fig, save_path)
+
+
+def plot_nested_bootstrap_diagnostics(
+    nested,
+    cumulative,
+    observed_contrast,
+    save_path=None,
+):
+    """Show the current M3-null calibration and its boundary diagnostics."""
+    valid = nested[nested["success"].astype(bool)].copy()
+    values = valid["contrast"].to_numpy(dtype=float)
+    exceed = values >= observed_contrast
+    p_upper = (int(np.sum(exceed)) + 1)/(len(values) + 1)
+    q95 = float(np.quantile(values, 0.95))
+
+    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+
+    ax = axes[0, 0]
+    upper = max(observed_contrast, float(np.quantile(values, 0.975)))
+    central = values[values <= upper]
+    ax.hist(
+        central,
+        bins=max(10, int(np.sqrt(len(central)))),
+        color=COLORS["M3"],
+        alpha=0.60,
+    )
+    ax.axvline(observed_contrast, color=COLORS["M4"], linewidth=2.5,
+               linestyle="--", label=f"observed = {observed_contrast:.1f}")
+    ax.axvline(q95, color="black", linewidth=1.5,
+               label=f"null 95% quantile = {q95:.1f}")
+    n_hidden = int(np.sum(values > upper))
+    if n_hidden:
+        ax.text(
+            0.97, 0.94, f"{n_hidden} larger null values lie beyond this panel",
+            transform=ax.transAxes, ha="right", va="top", fontsize=9,
+        )
+    ax.set_xlabel(r"$2\{\mathrm{NLL}_{M3}-\mathrm{NLL}_{M4}\}$")
+    ax.set_ylabel("Replications")
+    ax.set_title("(A) Central null distribution", fontweight="bold")
+    ax.legend(frameon=False)
+    _style(ax)
+
+    ax = axes[0, 1]
+    ax.plot(
+        cumulative["n_valid"], cumulative["p_upper"],
+        color=COLORS["M4"], linewidth=2,
+    )
+    ax.axhline(0.05, color="black", linestyle="--", linewidth=1,
+               label="5% decision level")
+    ax.axhline(p_upper, color=COLORS["M3"], linestyle=":", linewidth=1.5,
+               label=f"final p = {p_upper:.3f}")
+    ax.set_ylim(0, min(1.0, max(0.25, 1.1*float(cumulative["p_upper"].max()))))
+    ax.set_xlabel("Successful bootstrap replications")
+    ax.set_ylabel("Corrected upper-tail probability")
+    ax.set_title("(B) Monte Carlo stabilization", fontweight="bold")
+    ax.legend(frameon=False)
+    _style(ax)
+
+    ax = axes[1, 0]
+    color_values = np.log10(np.maximum(valid["q_min_observed_m4"], 1e-8))
+    points = ax.scatter(
+        valid["position_term_norm_m4"],
+        valid["contrast"],
+        c=color_values,
+        cmap="viridis",
+        alpha=0.80,
+        edgecolor="none",
+    )
+    ax.axhline(observed_contrast, color=COLORS["M4"], linestyle="--",
+               linewidth=1.5)
+    ax.set_xscale("log")
+    ax.set_yscale("symlog", linthresh=1.0)
+    ax.set_xlabel(r"$\|(\delta,\epsilon,\zeta)\|_2$")
+    ax.set_ylabel("Bootstrap contrast")
+    ax.set_title("(C) Large gains require large position terms", fontweight="bold")
+    colorbar = fig.colorbar(points, ax=ax)
+    colorbar.set_label(r"$\log_{10}$ minimum $q$ on simulated data rectangle")
+    _style(ax)
+
+    ax = axes[1, 1]
+    categories = np.where(exceed, "at least observed", "below observed")
+    diagnostic = pd.DataFrame({
+        "group": categories,
+        "q_min": np.maximum(valid["q_min_observed_m4"], 1e-8),
+    })
+    sns.boxplot(
+        data=diagnostic,
+        x="group",
+        y="q_min",
+        order=["below observed", "at least observed"],
+        color="#B8D7E8",
+        showfliers=False,
+        ax=ax,
+    )
+    sns.stripplot(
+        data=diagnostic,
+        x="group",
+        y="q_min",
+        order=["below observed", "at least observed"],
+        color="black",
+        alpha=0.55,
+        jitter=0.18,
+        size=4,
+        ax=ax,
+    )
+    ax.set_yscale("log")
+    ax.set_xlabel("")
+    ax.set_ylabel("Minimum M4 diffusion on simulated data rectangle")
+    ax.set_title("(D) Some upper-tail fits approach the floor", fontweight="bold")
+    _style(ax)
+
+    fig.suptitle(
+        "Current-optimizer M3-null bootstrap for M3 versus M4",
+        fontsize=16,
+        fontweight="bold",
+        y=1.01,
+    )
+    fig.tight_layout()
     return _finish(fig, save_path)
 
 
@@ -676,7 +804,8 @@ def plot_recovery_study(
     )
     sns.stripplot(
         data=valid, x="model", y="q_path_relative_rmse", hue="observation",
-        dodge=True, color="black", alpha=0.35, size=3, ax=ax, legend=False,
+        dodge=True, palette={"complete": "black", "partial": "black"},
+        alpha=0.35, size=3, ax=ax, legend=False,
     )
     ax.set_xlabel("")
     ax.set_ylabel("Relative RMSE of $q$ on latent path")
@@ -708,7 +837,8 @@ def plot_recovery_study(
     )
     sns.stripplot(
         data=m4, x="parameter", y="relative_error", hue="observation",
-        dodge=True, color="black", alpha=0.4, size=4, ax=ax, legend=False,
+        dodge=True, palette={"complete": "black", "partial": "black"},
+        alpha=0.4, size=4, ax=ax, legend=False,
     )
     ax.axhline(0, color="black", linestyle="--", linewidth=1)
     ax.set_xticks(

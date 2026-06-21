@@ -33,6 +33,7 @@ from .figures import (
     plot_m4_parametric_bootstrap_parameters,
     plot_modelwise_ios_bootstrap,
     plot_nested_bootstrap,
+    plot_nested_bootstrap_diagnostics,
     plot_predictive_densities,
     plot_predictive_percentiles,
     plot_real_data_mechanisms,
@@ -43,6 +44,10 @@ from .figures import (
 )
 from student_kramers.discrimination import M4_EFFECT_SCALES
 from student_kramers.models import PARAM_NAMES
+from student_kramers.recovery import (
+    summarize_recovery,
+    summarize_recovery_diagnostics,
+)
 from student_kramers.simulation import compute_derived_params
 
 
@@ -116,6 +121,45 @@ CURRENT_SOURCES = {
     "m4_optimization_stability.csv": (
         "results/runs/ios_cholesky_audit_v2/m4_optimization_stability.csv"
     ),
+    "m3_m4_nested_bootstrap.csv": (
+        "results/runs/m3_m4_nested_cholesky_v2/m3_m4_nested_bootstrap.csv"
+    ),
+    "m3_m4_nested_bootstrap.csv.meta.json": (
+        "results/runs/m3_m4_nested_cholesky_v2/"
+        "m3_m4_nested_bootstrap.csv.meta.json"
+    ),
+    "m3_m4_nested_summary.csv": (
+        "results/runs/m3_m4_nested_cholesky_v2/m3_m4_nested_summary.csv"
+    ),
+    "m3_m4_nested_cumulative.csv": (
+        "results/runs/m3_m4_nested_cholesky_v2/m3_m4_nested_cumulative.csv"
+    ),
+    "m3_recovery_study.csv": (
+        "results/runs/m3_m4_simulation_cholesky/m3_recovery_study.csv"
+    ),
+    "m3_recovery_study.csv.meta.json": (
+        "results/runs/m3_m4_simulation_cholesky/m3_recovery_study.csv.meta.json"
+    ),
+    "m4_recovery_study.csv": (
+        "results/runs/m3_m4_simulation_cholesky/m4_recovery_study.csv"
+    ),
+    "m4_recovery_study.csv.meta.json": (
+        "results/runs/m3_m4_simulation_cholesky/m4_recovery_study.csv.meta.json"
+    ),
+    **{
+        f"discrimination_{truth.lower()}.csv": (
+            "results/runs/m3_m4_simulation_cholesky/"
+            f"discrimination_{truth.lower()}.csv"
+        )
+        for truth in ("M3", *M4_EFFECT_SCALES)
+    },
+    **{
+        f"discrimination_{truth.lower()}.csv.meta.json": (
+            "results/runs/m3_m4_simulation_cholesky/"
+            f"discrimination_{truth.lower()}.csv.meta.json"
+        )
+        for truth in ("M3", *M4_EFFECT_SCALES)
+    },
 }
 
 
@@ -218,6 +262,83 @@ def _derived_bootstrap_summary(table, observed_params):
     return pd.DataFrame(rows)
 
 
+def _nested_boundary_summary(table, observed_contrast):
+    """Summarize how null contrasts relate to M4 boundary behavior."""
+    valid = table[table["success"].astype(bool)].copy()
+    valid["exceeds_observed"] = valid["contrast"] >= observed_contrast
+    rows = []
+    for label, group in (
+        ("all", valid),
+        ("below_observed", valid[~valid["exceeds_observed"]]),
+        ("at_least_observed", valid[valid["exceeds_observed"]]),
+    ):
+        rows.append({
+            "group": label,
+            "n": len(group),
+            "contrast_median": float(group["contrast"].median()),
+            "contrast_q95": float(group["contrast"].quantile(0.95)),
+            "q_min_observed_median": float(group["q_min_observed_m4"].median()),
+            "q_min_observed_below_10": int(
+                (group["q_min_observed_m4"] < 10.0).sum()
+            ),
+            "delta_at_cholesky_bound": int(
+                np.isclose(group["m4_delta"], 2500.0, atol=1e-4).sum()
+            ),
+            "position_term_norm_median": float(
+                group["position_term_norm_m4"].median()
+            ),
+        })
+    return pd.DataFrame(rows)
+
+
+def _current_simulation_summaries():
+    """Build compact current-optimizer recovery and discrimination tables."""
+    diagnostics = []
+    parameter_tables = []
+    for model in ("M3", "M4"):
+        table = pd.read_csv(CURRENT_DIR / f"{model.lower()}_recovery_study.csv")
+        block = summarize_recovery_diagnostics(table)
+        block.insert(0, "model", model)
+        diagnostics.append(block)
+        parameters = summarize_recovery(
+            table, config.REFERENCE_PARAMS_BY_MODEL[model], model,
+        )
+        parameters.insert(0, "model", model)
+        parameter_tables.append(parameters)
+    pd.concat(diagnostics, ignore_index=True).to_csv(
+        CURRENT_DIR / "recovery_diagnostics.csv", index=False,
+    )
+    pd.concat(parameter_tables, ignore_index=True).to_csv(
+        CURRENT_DIR / "recovery_parameters.csv", index=False,
+    )
+
+    nested_summary = pd.read_csv(CURRENT_DIR / "m3_m4_nested_summary.csv").iloc[0]
+    threshold = float(nested_summary["contrast_q95"])
+    observed = float(nested_summary["observed_contrast"])
+    rows = []
+    for truth in ("M3", *M4_EFFECT_SCALES):
+        table = pd.read_csv(
+            CURRENT_DIR / f"discrimination_{truth.lower()}.csv"
+        )
+        valid = table[table["success"].astype(bool)]["contrast"]
+        rows.append({
+            "truth": truth,
+            "n_traj": len(table),
+            "n_success": len(valid),
+            "success_rate": len(valid)/len(table),
+            "contrast_mean": float(valid.mean()),
+            "contrast_median": float(valid.median()),
+            "contrast_q025": float(valid.quantile(0.025)),
+            "contrast_q975": float(valid.quantile(0.975)),
+            "contrast_max": float(valid.max()),
+            "fraction_at_least_observed": float((valid >= observed).mean()),
+            "fraction_above_nested_q95": float((valid >= threshold).mean()),
+        })
+    pd.DataFrame(rows).to_csv(
+        CURRENT_DIR / "discrimination_summary.csv", index=False,
+    )
+
+
 def refresh_report_snapshot():
     """Refresh the Git-trackable report tables from local result checkpoints."""
     CURRENT_DIR.mkdir(parents=True, exist_ok=True)
@@ -260,6 +381,12 @@ def refresh_report_snapshot():
     _predictive_comparison(
         predictive_summary, predictive_behavior,
     ).to_csv(CURRENT_DIR / "predictive_comparison_summary.csv", index=False)
+    nested = pd.read_csv(CURRENT_DIR / "m3_m4_nested_bootstrap.csv")
+    nested_summary = pd.read_csv(CURRENT_DIR / "m3_m4_nested_summary.csv").iloc[0]
+    _nested_boundary_summary(
+        nested, float(nested_summary["observed_contrast"]),
+    ).to_csv(CURRENT_DIR / "m3_m4_nested_boundary_summary.csv", index=False)
+    _current_simulation_summaries()
 
     pd.DataFrame(manifest).to_csv(SNAPSHOT_DIR / "manifest.csv", index=False)
 
@@ -342,6 +469,37 @@ def build_report_figures():
         FIGURE_DIR / "development_nested_bootstrap.png",
         title="Development M3-null bootstrap (pre-Cholesky M4 optimizer)",
         note="Historical diagnostic only; not valid for the current M4 fit",
+    )
+
+    current_recovery = []
+    for model in ("M3", "M4"):
+        table = pd.read_csv(CURRENT_DIR / f"{model.lower()}_recovery_study.csv")
+        table["model"] = model
+        current_recovery.append(table)
+    plot_recovery_study(
+        pd.concat(current_recovery, ignore_index=True),
+        config.REFERENCE_PARAMS_BY_MODEL,
+        FIGURE_DIR / "current_recovery.png",
+        title="Current-optimizer M3 and M4 recovery study",
+    )
+
+    current_discrimination = [
+        pd.read_csv(CURRENT_DIR / f"discrimination_{truth.lower()}.csv")
+        for truth in ("M3", *M4_EFFECT_SCALES)
+    ]
+    nested_summary = pd.read_csv(CURRENT_DIR / "m3_m4_nested_summary.csv").iloc[0]
+    plot_discrimination(
+        pd.concat(current_discrimination, ignore_index=True),
+        float(nested_summary["observed_contrast"]),
+        FIGURE_DIR / "current_discrimination.png",
+        title="Current-optimizer M3/M4 discrimination study",
+        decision_threshold=float(nested_summary["contrast_q95"]),
+    )
+    plot_nested_bootstrap_diagnostics(
+        pd.read_csv(CURRENT_DIR / "m3_m4_nested_bootstrap.csv"),
+        pd.read_csv(CURRENT_DIR / "m3_m4_nested_cumulative.csv"),
+        float(nested_summary["observed_contrast"]),
+        FIGURE_DIR / "current_nested_bootstrap.png",
     )
 
     parameter_table = pd.read_csv(
